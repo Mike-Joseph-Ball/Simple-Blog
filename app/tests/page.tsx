@@ -1,5 +1,4 @@
 import MarketingPage from "./marketingPage";
-import Image from 'next/image';
 
 const TestPage = () => {
     return ( 

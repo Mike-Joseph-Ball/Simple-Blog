@@ -1,10 +1,10 @@
 import { createConnection } from '@/lib/db.ts'
-import { NextResponse } from 'next/server'
+import { NextResponse } from 'next/server' //Used to send HTTP responses 
 
 export async function GET() {
     try {
         const db = await createConnection()
-        const sql = "SELECT * FROM blogs"
+        const sql = "SELECT * FROM Blogs"
         const [blogs] = await db.query(sql)
         return NextResponse.json(blogs)
         

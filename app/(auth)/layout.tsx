@@ -3,7 +3,7 @@ const RootLayout = ({
 }: {
     children: React.ReactNode
 }) => {
-    return ( <div className="h-full bg-red-500 text-white">
+    return ( <div className="h-full">
         {children}
     </div> );
 }

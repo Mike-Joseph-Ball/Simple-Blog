@@ -6,7 +6,7 @@ let connection: mysql.Connection | null = null;
 export const createConnection = async () => {
     if (!connection) {
         connection = await mysql.createConnection({
-            host: process.env.DATABASE_HOST,
+            host: process.env.DATABASE_HOST, //Next.js allows you to access your environment variables like this as long as they are in the root directory
             user: process.env.DATABASE_USER,
             password: process.env.DATABASE_PASSWORD,
             database: process.env.DATABASE_NAME,

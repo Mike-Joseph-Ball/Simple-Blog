@@ -21,13 +21,13 @@ export const metadata: Metadata = {
     icon: [
       {
         media: "(prefers-color-scheme: light)",
-        url: "@/app/Light-Mode-Logo.svg",
-        href: "@/app/Light-Mode-Logo.svg"
+        url: "app/images/Light-Mode-Logo.svg",
+        href: "app/images/Light-Mode-Logo.svg"
       },
       {
         media: "(prefers-color-scheme: dark)",
-        url: "@/app/Dark-Mode-Logo.svg",
-        href: "@/app/Dark-Mode-Logo.svg"
+        url: "app/images/Dark-Mode-Logo.svg",
+        href: "app/images/Dark-Mode-Logo.svg"
       }
     ]
   }
@@ -39,9 +39,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    //Hydration is when React converts pre-rendered HTML from the server into
+    //Fully a fully interactive application by attaching event handlers
+    <html lang="en" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <ThemeProvider>
+        <ThemeProvider
+         attribute="class"
+         defaultTheme="system"
+         enableSystem
+         disableTransitionOnChange // gets rid of CSS transitions so theme change is instant
+         storageKey="simple-blog-key" //key that stores user preference, stored on the user's browser
+         //const currentTheme = localStorage.getItem('simple-blog-key);
+         >
           {children}
         </ThemeProvider>
       </body>

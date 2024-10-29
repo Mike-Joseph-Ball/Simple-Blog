@@ -22,6 +22,6 @@
       "@/*": ["./*"] //This means using the @ symbol starts the import at the root of the directory.
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "app/dashboard/_components/sidebar._lefttsx"],
   "exclude": ["node_modules"]
 }
