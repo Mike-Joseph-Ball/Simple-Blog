@@ -1,5 +1,5 @@
 import { useState} from 'react';
-import {auth} from '@/lib/firebase/config'
+import {auth} from '@/lib/_firebase/config'
 import { useRouter } from 'next/navigation'
 import { signInWithEmailAndPassword } from "firebase/auth";
 const EmailSignIn = () => {
@@ -16,13 +16,16 @@ const EmailSignIn = () => {
             signInWithEmailAndPassword(auth, email, password)
             .then((userCredential) => {
                 // Signed in 
-                const user = userCredential.user;
+                //const user = userCredential.user;
                 return router.push('/')
                 // ...
             })
             .catch((error) => {
                 const errorCode = error.code;
                 const errorMessage = error.message;
+                console.log("Sign In with Email and Password Unsuccessful.")
+                console.log("Error Code:", errorCode)
+                console.log("Error Message: ",errorMessage)
             });
         }
     }

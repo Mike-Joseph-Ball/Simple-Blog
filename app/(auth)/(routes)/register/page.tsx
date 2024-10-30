@@ -1,8 +1,8 @@
 'use client'
 
 import { useState } from 'react';
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from '@/lib/firebase/config';
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { auth } from '@/lib/_firebase/config';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 const RegisterPage = () => {
@@ -25,6 +25,8 @@ const RegisterPage = () => {
         .catch((error) => {
             const errorCode = error.code;
             const errorMessage = error.message;
+            console.log("Error Occurred in user creation with email and password.")
+            console.log("Error Code:",errorCode)
             console.log("Error Message:",errorMessage)
         });
     }

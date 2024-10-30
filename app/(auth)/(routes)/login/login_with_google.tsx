@@ -13,7 +13,7 @@ const GoogleSignInButton = () => {
         signInWithPopup(auth, provider)
             .then((result) => {
                 const credential = GoogleAuthProvider.credentialFromResult(result);
-                const token = credential ? credential.accessToken : null;
+                //const token = credential ? credential.accessToken : null;
 
                 setError(null); // Clear any previous errors
                 setUser(result.user);

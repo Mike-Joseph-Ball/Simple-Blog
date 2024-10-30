@@ -2,11 +2,10 @@
 import Heading from "@/app/(marketing)/_components/heading";
 import Heroes from '@/app/(marketing)/_components/heroes';
 import Footer from '@/app/(marketing)/_components/footer';
-import FetchBlogs from '@/lib/fetchBlogs.tsx';
 import userAuth from '@/app/(marketing)/_auth/return authentication';
 import { useEffect } from 'react';
 const MarketingPage = () => {
-    const [user,isPending] = userAuth();
+    const [user] = userAuth();
 
     useEffect(() => {
         console.log("User:", user);

@@ -1,7 +1,4 @@
 'use client'
-
-import { useState} from 'react';
-import {useAuthState } from 'react-firebase-hooks/auth'
 import { useRouter } from 'next/navigation'
 import GoogleSignInButton from '@/app/(auth)/(routes)/login/login_with_google'
 import  EmailSignIn  from '@/app/(auth)/(routes)/login/login_with_email'

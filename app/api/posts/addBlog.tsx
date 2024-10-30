@@ -17,9 +17,9 @@ export default async function addBlogHandler(req: NextApiRequest ,res: NextApiRe
 
             return res.status(201).json({message: 'Blog added successfully', id: (response as any).insertId})
         } catch(error) {
-            console.error(error) {
-                return res.status(500).json({ error: 'database error'});
-            }
+            console.error(error)
+            return res.status(500).json({ error: 'database error'});
+        
         }
     } else {
         res.setHeader('Allow', ['POST']);
