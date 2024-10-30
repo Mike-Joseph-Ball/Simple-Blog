@@ -14,9 +14,8 @@ const EmailSignIn = () => {
         }
         else{
             signInWithEmailAndPassword(auth, email, password)
-            .then((userCredential) => {
+            .then(() => {
                 // Signed in 
-                //const user = userCredential.user;
                 return router.push('/')
                 // ...
             })

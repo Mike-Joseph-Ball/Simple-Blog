@@ -3,13 +3,13 @@
 import { useState } from 'react';
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from '@/lib/_firebase/config';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+//import { useRouter } from 'next/navigation';
+//import { useEffect } from 'react';
 const RegisterPage = () => {
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const router = useRouter();
+    //const router = useRouter();
 
 
     function handleSignUp() {
@@ -18,9 +18,9 @@ const RegisterPage = () => {
             // Signed up 
             const user = userCredential.user;
             console.log("User account successfully created: ",user.displayName)
-            useEffect(() => {
-                router.push('/')
-            })
+            //useEffect(() => {
+            //    router.push('/')
+            //})
         })
         .catch((error) => {
             const errorCode = error.code;

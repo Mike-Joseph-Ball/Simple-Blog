@@ -9,13 +9,14 @@
 //JWT token is valid
 
 // idToken comes from the client app
-import { getAuth } from 'firebase/auth'
 
 
 //make this an asynchronous function because verifying the token is an API call
-const verify_Id_Token = async (idToken : any) => {
-  var admin = require("firebase-admin");
-  var serviceAccount = require("/home/mike/Documents/notion-clone/_firebase_SDK/simple-blog-admin-sdk-key.json");
+const verify_Id_Token = async (idToken : string) => {
+  /* eslint-disable @typescript-eslint/no-require-imports */
+  const admin = require("firebase-admin");
+  const serviceAccount = require("/home/mike/Documents/notion-clone/_firebase_SDK/simple-blog-admin-sdk-key.json");
+  /* eslint-enable @typescript-eslint/no-require-imports */
 
 
   admin.initializeApp({
@@ -24,9 +25,9 @@ const verify_Id_Token = async (idToken : any) => {
 
   });
 
-  const decoded_token = await admin.getAuth().verifyIdToken(idToken)
-  .then((decodedToken : any) => {
-    const uid = decodedToken.uid;
+  await admin.getAuth().verifyIdToken(idToken)
+  .then(() => {
+    //const uid = decodedToken.uid;
     
     
     return true;
