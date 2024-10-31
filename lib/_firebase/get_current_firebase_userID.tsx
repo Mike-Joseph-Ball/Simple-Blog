@@ -1,10 +1,10 @@
 'use client'
 
-import firebase from 'firebase/compat/app'
-import verify_Id_Token from '@/lib/_firebase/verify_id_token'
+import { auth } from '@/lib/_firebase/config'
 
-const CurrentFirebaseUserVerify = async () => {
-    const currentUser = firebase.auth().currentUser;
+const CurrentFirebaseUserVerify = async () : Promise<boolean> => {
+
+    const currentUser = auth.currentUser;
 
     if (!currentUser) {
         console.log("No current user is signed in.");
@@ -13,12 +13,24 @@ const CurrentFirebaseUserVerify = async () => {
 
     try {
         const idToken = await currentUser.getIdToken(/* forceRefresh */ true);
-        const isValid = await verify_Id_Token(idToken);
-        return isValid;
+        
+        const res = await fetch('/api/verify_id_token', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({idToken})
+        })
+
+        const data = await res.json()
+        if(res.ok) {
+            return data.success;
+        } else {
+            console.log("Response is invalid:",res)
+        }
     } catch (error) {
         console.error("Error verifying token:", error);
         return false;
     }
+    return false;
 }
 
 export default CurrentFirebaseUserVerify;

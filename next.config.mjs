@@ -2,14 +2,14 @@
 const nextConfig = {
 
     //ALLOWS FOR asyncWebAssembly
-    /*webpack(config) {
+    webpack(config) {
         
         // Since Webpack 5 doesn't enable WebAssembly by default, we should do it manually
         config.experiments = { ...config.experiments, asyncWebAssembly: true };
     
         return config;
         
-      },*/
+      },
     
     };
 
