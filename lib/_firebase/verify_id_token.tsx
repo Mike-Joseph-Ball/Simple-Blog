@@ -13,6 +13,7 @@
 
 //make this an asynchronous function because verifying the token is an API call
 const verify_Id_Token = async (idToken : string) => {
+  
   /* eslint-disable @typescript-eslint/no-require-imports */
   const admin = require("firebase-admin");
   const serviceAccount = require("/home/mike/Documents/notion-clone/_firebase_SDK/simple-blog-admin-sdk-key.json");
