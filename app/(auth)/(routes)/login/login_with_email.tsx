@@ -1,7 +1,7 @@
 import { useState} from 'react';
 import {auth} from '@/lib/_firebase/config'
 import { useRouter } from 'next/navigation'
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword, setPersistence, browserSessionPersistence } from "firebase/auth";
 const EmailSignIn = () => {
 
     const [email, setEmail] = useState('');
@@ -13,6 +13,21 @@ const EmailSignIn = () => {
             return;
         }
         else{
+
+            /* sets the persistence of the browser session */
+            setPersistence(auth, browserSessionPersistence)
+            .then(() => {
+                if(process.env.DEBUG === 'true')
+                    console.log('LOGIN WITH EMAIL: persistence set successfully')
+            })
+            .catch((error) => {
+                console.log("LOGIN WITH EMAIL: Setting browser persistence failed.")
+                console.log("Error Code:", error.code)
+                console.log("Error Message:",error.message)
+            })
+            /* end setting  browser persistence */
+
+
             signInWithEmailAndPassword(auth, email, password)
             .then(() => {
                 // Signed in 
@@ -20,11 +35,9 @@ const EmailSignIn = () => {
                 // ...
             })
             .catch((error) => {
-                const errorCode = error.code;
-                const errorMessage = error.message;
-                console.log("Sign In with Email and Password Unsuccessful.")
-                console.log("Error Code:", errorCode)
-                console.log("Error Message: ",errorMessage)
+                console.log("LOGIN WITH EMAIL: Sign In with Email and Password Unsuccessful.")
+                console.log("Error Code:", error.code)
+                console.log("Error Message: ",error.message)
             });
         }
     }

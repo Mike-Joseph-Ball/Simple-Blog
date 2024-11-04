@@ -1,4 +1,4 @@
-import { getAuth, signInWithPopup, GoogleAuthProvider, User } from 'firebase/auth';
+import { getAuth, signInWithPopup, GoogleAuthProvider, User, setPersistence, browserSessionPersistence } from 'firebase/auth';
 import { useState } from 'react';
 
 const GoogleSignInButton = () => {
@@ -9,6 +9,19 @@ const GoogleSignInButton = () => {
         const provider = new GoogleAuthProvider();
         const auth = getAuth();
         auth.useDeviceLanguage(); // Set language to the browser's default
+
+        /* sets the persistence of the browser session */
+        setPersistence(auth, browserSessionPersistence)
+            .then(() => {
+                if(process.env.DEBUG === 'true')
+                    console.log('LOGIN WITH EMAIL: persistence set successfully')
+            })
+            .catch((error) => {
+                console.log("LOGIN WITH EMAIL: Setting browser persistence failed.")
+                console.log("Error Code:", error.code)
+                console.log("Error Message:",error.message)
+            })
+        /* end setting browser persistence */
 
         signInWithPopup(auth, provider)
             .then((result) => {

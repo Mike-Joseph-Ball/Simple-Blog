@@ -2,17 +2,21 @@
 
 import { useScrollTop } from "@/hooks/use-scroll-top";
 import { cn } from "@/lib/utils";
-import Logo from '@/app/(marketing)/_components/logo';
+import Logo from '@/app/(landing_page)/_components/logo';
 import ModeToggle  from '@/components/mode_toggle';
-import userAuth from '@/app/(marketing)/_auth/return authentication';
+import userAuth from '@/lib/_firebase/return_local_authentication';
 import SignOutButton from '@/app/(auth)/(routes)/logout/SignOutButton';
 import SignInButton from '@/app/(auth)/(routes)/login/SignInButton';
+
 export const Navbar = () => {
 
     const scrolled = useScrollTop();
 
     const [user, isPending] = userAuth();
     //console.log("User:",user)
+
+    if(process.env.NEXT_PUBLIC_DEBUG === 'true')
+        console.log("NAVBAR: Currently logged in user:",user)
     
     return (
         //The cn function is a utility who's primary purpose is to conditionally construct tailwind components.

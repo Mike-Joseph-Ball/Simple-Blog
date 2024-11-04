@@ -1,4 +1,4 @@
-import { Navbar } from '@/app/(marketing)/_components/navbar'
+import { Navbar } from '@/app/(landing_page)/_components/navbar'
 
 const MarkingLayout = ({ 
     children
