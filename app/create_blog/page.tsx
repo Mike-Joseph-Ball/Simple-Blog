@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react';
-import  useCurrentFirebaseUserVerify from '@/lib/_firebase/Is_Token_Legitimate_Middleware'
+import  useCurrentFirebaseUserVerify from '@/lib/_firebase/local_authentication/Is_Token_Legitimate_Middleware'
 import Main_Form from '@/app/create_blog/main_form'
 import { auth } from '@/lib/_firebase/config'
 

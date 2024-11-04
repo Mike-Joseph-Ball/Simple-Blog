@@ -11,6 +11,7 @@
 // idToken comes from the client app
 
 import { NextApiRequest, NextApiResponse } from "next";
+import verify_id_token_helper from '@/lib/_firebase/server_authentication/Verify_Firebase_Auth_Helper'
 /* eslint-disable @typescript-eslint/no-require-imports */
 const admin = require("firebase-admin");
 const serviceAccount = require('@/simple-blog-admin-sdk-key.json');
@@ -19,6 +20,7 @@ const serviceAccount = require('@/simple-blog-admin-sdk-key.json');
 //make this an asynchronous function because verifying the token iidToken : strings an API call
 const verify_id_token = async (req : NextApiRequest, res : NextApiResponse ) => {
   //This ensures that the app is only initialized once.
+
   if(admin.apps.length === 0)
   {
     admin.initializeApp({
@@ -35,14 +37,19 @@ const verify_id_token = async (req : NextApiRequest, res : NextApiResponse ) => 
     return res.status(400).json({error: "ID token is required"})
   }
 
-  const decodedToken = admin.auth().verifyIdToken(idToken)
-  .then(() => {
-    return res.status(200).json({success: true,uid: decodedToken.uid})
-  })
-  .catch((error : Error) => {
-    console.log("Error verifying token: ",error)
-    return res.status(403).json({success: false,error:'Ivalid ID Token'})
-  });
+  try {
+    const decodedToken = await verify_id_token_helper(idToken);
+    if(decodedToken){
+      return res.status(200).json({success:true,uid:decodedToken})
+    } else {
+      return res.status(403).json({ success: false, error: 'Invalid ID Token' });
+    }
+  } catch(error) {
+    console.error("Error verifying token: ",error)
+    return res.status(403).json({ success: false, error: 'Invalid ID Token' });
+  }
+
+
 }
 
 export default verify_id_token;

@@ -4,7 +4,7 @@ import { useScrollTop } from "@/hooks/use-scroll-top";
 import { cn } from "@/lib/utils";
 import Logo from '@/app/(landing_page)/_components/logo';
 import ModeToggle  from '@/components/mode_toggle';
-import userAuth from '@/lib/_firebase/return_local_authentication';
+import userAuth from '@/lib/_firebase/local_authentication/return_local_authentication';
 import SignOutButton from '@/app/(auth)/(routes)/logout/SignOutButton';
 import SignInButton from '@/app/(auth)/(routes)/login/SignInButton';
 

@@ -2,7 +2,7 @@
 import { useRouter } from 'next/navigation'
 import GoogleSignInButton from '@/app/(auth)/(routes)/login/login_with_google'
 import  EmailSignIn  from '@/app/(auth)/(routes)/login/login_with_email'
-import userAuth from '@/lib/_firebase/return_local_authentication';
+import userAuth from '@/lib/_firebase/local_authentication/return_local_authentication';
 import { useEffect } from 'react'
 
 const LogInPage = () => {

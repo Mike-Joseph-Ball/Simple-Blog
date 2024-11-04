@@ -2,9 +2,8 @@
 import Heading from "@/app/(landing_page)/_components/heading";
 import Heroes from '@/app/(landing_page)/_components/heroes';
 import Footer from '@/app/(landing_page)/_components/footer';
-import userAuth from '@/lib/_firebase/return_local_authentication';
-import { useEffect, useState } from 'react';
-import  useCurrentFirebaseUserVerify from '@/lib/_firebase/Is_Token_Legitimate_Middleware'
+import { useEffect } from 'react';
+import  useCurrentFirebaseUserVerify from '@/lib/_firebase/local_authentication/Is_Token_Legitimate_Middleware'
 import { auth } from '@/lib/_firebase/config'
 
 

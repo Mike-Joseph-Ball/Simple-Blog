@@ -1,6 +1,6 @@
 'use client'
 
-import useLocalUserAuth from '@/lib/_firebase/return_local_authentication';
+import useLocalUserAuth from '@/lib/_firebase/local_authentication/return_local_authentication';
 import { useEffect, useState } from 'react';
 
 const useCurrentFirebaseUserVerify = () => {
