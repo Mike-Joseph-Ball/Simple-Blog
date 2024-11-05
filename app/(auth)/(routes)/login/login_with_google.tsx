@@ -5,7 +5,7 @@ const GoogleSignInButton = () => {
     const [error, setError] = useState<string | null>(null);
     const [user, setUser] = useState<User | null>(null);
 
-    const handleGoogleSignIn = () => {
+    const  handleGoogleSignIn = async () => {
         const provider = new GoogleAuthProvider();
         const auth = getAuth();
         auth.useDeviceLanguage(); // Set language to the browser's default
@@ -22,21 +22,15 @@ const GoogleSignInButton = () => {
                 console.log("Error Message:",error.message)
             })
         /* end setting browser persistence */
-
-        signInWithPopup(auth, provider)
-            .then((result) => {
-                //const credential = GoogleAuthProvider.credentialFromResult(result);
-                //const token = credential ? credential.accessToken : null;
-
-                setError(null); // Clear any previous errors
-                setUser(result.user);
-            })
-            .catch((error) => {
-                // Check if error has a message, else use a default error string
-                const errorMessage = error instanceof Error ? error.message || JSON.stringify(error) : "An unexpected error occured";
-                setError(errorMessage);
-                console.log("Error:", errorMessage);
-            });
+        try {
+            const result = await signInWithPopup(auth, provider)
+            setError(null)
+            setUser(result.user);
+        } catch(error) {
+            const errorMessage = error instanceof Error ? error.message || JSON.stringify(error) : "An unexpected error occured";
+            setError(errorMessage);
+            console.log("Error:", errorMessage);
+        }
     };
 
     return (

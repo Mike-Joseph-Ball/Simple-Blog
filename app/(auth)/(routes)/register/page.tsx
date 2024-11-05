@@ -3,12 +3,16 @@ import useLocalUserAuth from '@/lib/_firebase/local_authentication/return_local_
 import { useState } from 'react';
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from '@/lib/_firebase/config';
-//import { useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
+import { FirebaseError } from 'firebase/app';
+
 //import { Result } from 'postcss';
 const RegisterPage = () => {
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [error,setError] = useState('')
+    const router = useRouter();
     //const router = useRouter();
 
     async function Add_User_To_MySQL_DB(user_email : string,user_tokenId : string){
@@ -22,61 +26,78 @@ const RegisterPage = () => {
             })
             const data = await res.json()
             if(res.ok) {
-                return data.success;
+                console.log('user successfully added to mySQL DB')
+                return data;
             } else {
-                console.log("user not successfully added to mySQL DB")
+                console.log("user not successfully added to mySQL DB",data.message)
+                return data;
             }
         } catch(error) {
             console.log("Error Adding User to mySQL DB:",error)
-            return false
+            return error
         }
     }
 
+    //This function has 3 nested functions.
+    //The first function creates a user profile in Firebase
+    //If the first function succeeds, the user IDtoken from the
+    //user that was just created is grabbed. If this function succeeds,
+    //The user is added to the mySQL DB.
 
-    function handleSignUp() {
-        createUserWithEmailAndPassword(auth, email, password)
-        .then((userCredential) => {
-            // Signed up 
+    async function handleSignUp() {
+        try {
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
+    
             if (user) {
-                console.log("User account successfully created: ",user.displayName)
-                // Use .then() to handle the asynchronous call to getIdToken
-                user.getIdToken(true)
-                  .then((idToken) => {
-                    console.log("REGISTER PAGE: idToken:",idToken)
+                console.log("REGISTER PAGE: Firebase User account successfully created:", user.email);
+    
+                // Get ID token
+                const idToken = await user.getIdToken(true);
+                console.log("REGISTER PAGE: Firebase idToken:", idToken);
+    
+                // Add user to MySQL DB with the obtained token
+                const result = await Add_User_To_MySQL_DB(email, idToken);
+                if (result.success === true) {
+                    console.log("result: ",result)
+                    console.log("User successfully added to MySQL DB");
+                    router.push('/');
+                } else if(result.errno === 1062){
+                    throw new Error('Email is already registed. Please choose a different email.');
+                } else {
+                    throw new Error(result.message)
+                }
+    
+                console.log("User ID Token:", idToken);
+            }
+        } catch (error : unknown) {
+            console.error("Error occurred during sign-up or adding user to MySQL DB:", error);
 
-                    //In order for the mySQL DB addition to work, we need the user's local JWT
-                    //This is why we nest the function call in the getIdToken return.
-                    const result = Add_User_To_MySQL_DB(email,idToken)
-                    .then(() => {
-                        console.log("User successfully added to mySQL DB")
-                    })
-                    .catch((error) => {
-                        console.log("REGISTER PAGE: Error Adding user to mySQL DB: ")
-                    })
-                    if(!result) {
-                        throw new Error('User was not added to mySQL DB!')
-                    }
-                    console.log("User ID Token:", idToken);
-                  })
-                  .catch((error) => {
-                    console.error("Error getting ID Token:", error);
-                  });
-              }
-            })
-            //useEffect(() => {
-            //    router.push('/')
-            //})
-        .catch((error) => {
-            const errorCode = error.code;
-            const errorMessage = error.message;
-            console.log("Error Occurred in user creation with email and password.")
-            console.log("Error Code:",errorCode)
-            console.log("Error Message:",errorMessage)
-        });
-
-        /* Add the user to the SQL DB also */
-
+            if (error instanceof Error) {
+                if(error.message)
+                setError(error.message);
+            }
+            if (error instanceof FirebaseError) {
+                switch (error.code) {
+                    case 'auth/email-already-in-use':
+                        setError("This email is already in use. Please try another one.");
+                        break;
+                    case 'auth/invalid-email':
+                        setError("The email address is not valid.");
+                        break;
+                    case 'auth/weak-password':
+                        setError("The password is too weak. Please use a stronger password.");
+                        break;
+                    case 'auth/operation-not-allowed':
+                        setError("This operation is not allowed. Please contact support.");
+                        break;
+                    // Add more error codes as needed
+                    default:
+                        setError("An unknown error occurred during sign-up.");
+                        break;
+                }
+            }
+        }
     }
     return ( <div>
         <p>Email</p>
@@ -99,6 +120,8 @@ const RegisterPage = () => {
         >
         Sign up
         </button>
+
+        {error && <p className="text-red-600">{error}</p>}
 
     </div> );
 }

@@ -1,3 +1,10 @@
+//This is a client side component that acts as middleware for checking whether
+//a user token is legitimate. There are two advantages for having client side
+//middleware here:
+//1. There is less code in the component calling this, rather than maing an API call
+//directly.
+//2. There is no need to retrieve the user token in the calling module, as this module will do it for it.
+
 'use client'
 
 import useLocalUserAuth from '@/lib/_firebase/local_authentication/return_local_authentication';

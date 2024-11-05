@@ -18,7 +18,7 @@ const Create_User = async (req : NextApiRequest, res : NextApiResponse) => {
     if(isIdTokenLegit){
         try {
             const db = await createConnection();
-            const sql = 'INSERT INTO UserAccounts (User_email) VALUES (?)'
+            const sql = 'SELECT FROM UserAccounts WHERE email = (?)'
             const [response] = await db.query(sql, [user_email])
             return (res.status(200).json({success:true, res:response}));
         } catch(error: any) {
