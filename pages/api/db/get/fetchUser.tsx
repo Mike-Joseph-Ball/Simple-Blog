@@ -1,6 +1,5 @@
 //This module first checks if the user's JWT Token is valid, and then it adds the user to the mySQL DB.
 //This was written so that user's who signed up and were added to firebase were also added to the mySQL DB at the same time
-
 import { createConnection } from '@/lib/db'
 import { NextApiRequest, NextApiResponse } from "next";
 import verify_id_token_helper from '@/lib/_firebase/server_authentication/Verify_Firebase_Auth_Helper'

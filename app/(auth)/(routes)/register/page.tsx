@@ -47,8 +47,14 @@ const RegisterPage = () => {
     async function handleSignUp() {
         try {
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            //Got rid of adding user to mySQL DB. No need for user to be in mySQL DB since we can add
+            //custom fields to firebase profiles
             const user = userCredential.user;
-    
+            if(user) {
+                console.log("User successfully added to Firebase: ");
+                router.push('/');
+            }
+            /*
             if (user) {
                 console.log("REGISTER PAGE: Firebase User account successfully created:", user.email);
     
@@ -70,8 +76,9 @@ const RegisterPage = () => {
     
                 console.log("User ID Token:", idToken);
             }
+            */
         } catch (error : unknown) {
-            console.error("Error occurred during sign-up or adding user to MySQL DB:", error);
+            console.error("Error occurred during firebase sign-up:", error);
 
             if (error instanceof Error) {
                 if(error.message)

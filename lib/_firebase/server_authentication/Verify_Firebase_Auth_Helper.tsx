@@ -1,3 +1,7 @@
+//This is a server side module designed to find out whether a user's JWT token is valid.
+//This module is currently being called by the API endpoint Is_Token_Legitimate,
+//And is also called by the create_user server side component.
+
 /* eslint-disable @typescript-eslint/no-require-imports */
 const admin = require("firebase-admin");
 const serviceAccount = require('@/simple-blog-admin-sdk-key.json');

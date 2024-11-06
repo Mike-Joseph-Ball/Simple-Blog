@@ -1,6 +1,6 @@
 'use client'
 import Heading from "@/app/(landing_page)/_components/heading";
-import Heroes from '@/app/(landing_page)/_components/heroes';
+import Blog_Examples from '@/app/(landing_page)/_components/blog_examples';
 import Footer from '@/app/(landing_page)/_components/footer';
 import { useEffect } from 'react';
 import  useCurrentFirebaseUserVerify from '@/lib/_firebase/local_authentication/Is_Token_Legitimate_Middleware'
@@ -26,18 +26,14 @@ const MarketingPage = () => {
 
 
     if(isValid === null){
-        return(<div>Validating Session...</div>);
+        return(<div>Retrieving Session Information...</div>);
     }
-    if(!isValid){
-        return(<div>Invalid token. Please log in again.</div>);
-    }
-
     return ( 
         <div className="min-h-full flex flex-col">
             <div className="flex flex-col items-center justify-center md:justify-start text-center gap-y-8 flex-1 px-6 pb-10">
-                <Heading/>
+                <Heading message={isValid}/>
                 Blogs:
-                <Heroes />
+                <Blog_Examples />
             </div>
             <Footer />
         </div>

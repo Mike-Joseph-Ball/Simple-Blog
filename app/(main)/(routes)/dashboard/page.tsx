@@ -1,5 +1,5 @@
-import Sidebar_Left from '@/app/dashboard/_components/sidebar_left'
-import PostContent from '@/app/dashboard/_components/post_content'
+import Sidebar_Left from '@/app/(main)/(routes)/dashboard/_components/sidebar_left'
+import PostContent from '@/app/(main)/(routes)/dashboard/_components/post_content'
 
 const Dashboard = () => {
     return ( 

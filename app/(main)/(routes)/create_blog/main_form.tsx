@@ -13,8 +13,15 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-
+import { useRouter } from 'next/navigation'
+import  Add_Blog_To_MySQL_DB  from '@/lib/mySQL/Add_Blog_To_MYSQL_DB'
+import userAuth from '@/lib/_firebase/local_authentication/return_local_authentication';
+import { useState } from 'react'
 const Main_Form = () => {
+
+  const router = useRouter()
+  const [user, isPending] = userAuth();
+  const [error,setError] = useState(Error)
 
     //Makes a formSchema that will called in the next code block to actually create the form object
     //We use zod to set the rules for the form input fields.
@@ -43,11 +50,48 @@ const Main_Form = () => {
     })
 
     //The input for this function will be the returned values of the form, which are wrapped in an object of type FormSchemaType
-    function onSubmit(values: FormSchemaType) {
-        // Do something with the form values.
-        // ✅ This will be type-safe and validated.
+    async function onSubmit(values: FormSchemaType) {
+        //We are first going to make a POST request to the mySQL DB to add the blog post
+        //Then, in the event that is successful, we will route to the blog view, with URL parameters so that the recieving
+        //component knows which blog to display
 
-        console.log(values)
+        /* DB REQUEST */
+        //We call a client function that makes the API call
+        try {
+          if(user?.email){
+            const idToken = await user.getIdToken(true);
+            const blog_add_response = await Add_Blog_To_MySQL_DB(idToken,user.email,values.blog_title,values.comment_settings_default,values.blog_template_style)
+            //The client middleware returns an error  if it runs into any problems
+            if(blog_add_response.success === null) {
+              throw new Error('The client middleware "Add_Blog_To_MySQL_DB" encountered a critical error')
+            }
+            if(blog_add_response.success === true) {
+              //This is where we route to the dashboard
+              const query = new URLSearchParams({
+                idToken: idToken,
+                user_email: user.email,
+                blog_title: values.blog_title,
+                comment_settings_default: values.comment_settings_default,
+                blog_template_style: values.blog_template_style
+              }).toString()
+      
+              console.log(values)
+              router.push(`/dashboard?${query}`)
+
+            } else if(blog_add_response.errno === 1062) {
+              throw new Error("The blog title must be unique")
+            } else if(blog_add_response.errno === 1406) {
+              throw new Error("One or more fields exceed maximum length.")
+            } else {
+              throw new Error(blog_add_response.message)
+            }
+          } else {
+            throw new Error("user's session information could not be captured, so blog creation could not complete")
+          }
+        } catch(error) {
+          if(error instanceof Error)
+            setError(error)
+        }
       }
 
     return ( <div>
@@ -125,10 +169,11 @@ const Main_Form = () => {
                 </FormItem>
               )}
             />
-    
+    {/* Submit Button */}
+    <Button type="submit">Submit</Button>
     </form>
     </Form>
-
+    {error && <p className='text-red-600'>{error.message}</p>}
     </div> );
 }
  
