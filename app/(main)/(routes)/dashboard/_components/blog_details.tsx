@@ -1,3 +1,5 @@
+
+
 const BlogDetails = () => {
     return ( <div className="flex flex-col items-center">
         <div className="text-5xl">

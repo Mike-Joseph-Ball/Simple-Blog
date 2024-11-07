@@ -6,6 +6,7 @@ const Add_Blog_To_MySQL_DB = async (user_tokenId: string,user_email :string,blog
             body: JSON.stringify({user_tokenId,user_email,blog_title,comment_settings_default,blog_template_style})
         })
         const data = await res.json()
+        //res.ok indicates that the status code is in between 200-299, signifying a successful response
         if(res.ok) {
             console.log('Blog successfully added to mySQL DB')
         } else {
@@ -14,7 +15,7 @@ const Add_Blog_To_MySQL_DB = async (user_tokenId: string,user_email :string,blog
         return data;
     } catch (error) {
         console.log('something went wrong in middleware blog creation client component')
-        return false
+        return error
     }
 }
  

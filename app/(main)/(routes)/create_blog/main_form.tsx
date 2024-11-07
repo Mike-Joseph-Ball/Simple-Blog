@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { useRouter } from 'next/navigation'
-import  Add_Blog_To_MySQL_DB  from '@/lib/mySQL/Add_Blog_To_MYSQL_DB'
+import  Add_Blog_To_MySQL_DB  from '@/lib/mySQL/PUT/Add_Blog_To_MYSQL_DB'
 import userAuth from '@/lib/_firebase/local_authentication/return_local_authentication';
 import { useState } from 'react'
 const Main_Form = () => {
@@ -29,6 +29,7 @@ const Main_Form = () => {
         blog_title: z.string().min(2).max(50),
         comment_settings_default: z.union([z.literal("comments allowed"),z.literal("comments must be approved"),z.literal('comments disabled')]),
         blog_template_style: z.union([z.literal("Simple Blog"),z.literal("Detailed Blog"),z.literal("Silly Blog")]),
+        blog_description: z.string().min(2).max(100).optional(),
     })
     
     //when the values of the form are used as parameters in another function, the params need to know
@@ -45,7 +46,8 @@ const Main_Form = () => {
         defaultValues: {
             blog_title: "",
             comment_settings_default: "comments allowed",
-            blog_template_style: "Simple Blog"
+            blog_template_style: "Simple Blog",
+            blog_description: ""
           },
     })
 
@@ -68,11 +70,9 @@ const Main_Form = () => {
             if(blog_add_response.success === true) {
               //This is where we route to the dashboard
               const query = new URLSearchParams({
-                idToken: idToken,
                 user_email: user.email,
                 blog_title: values.blog_title,
-                comment_settings_default: values.comment_settings_default,
-                blog_template_style: values.blog_template_style
+                //comment_settings_default: values.comment_settings_default,
               }).toString()
       
               console.log(values)
@@ -115,6 +115,25 @@ const Main_Form = () => {
                 <Input {...field} placeholder="Enter Blog Title" />
             </FormControl>
             <FormDescription>Enter a title for your blog post.</FormDescription>
+        </FormItem>
+        )}
+    />
+    <FormField
+        //This control prop links this particular form field to the zod validation we set up and attached to the form object
+        control={form.control}
+        name="blog_description"
+        render={({ field }) => (
+        <FormItem>
+            <FormLabel>Blog Description</FormLabel>
+            <FormControl>
+                {/* This uses the spread syntax. The spread syntax extracts the contents of an interable
+                object and makes key/value pairs. In this case, the key value pairs are the objects inside the form prop,
+                which include key properties like value, onChange, onBlur, etc.
+                Spreading the field here sets these properties to the same properties of the Input field. 
+                It is a shorthand that makes the component automatically bound to the form’s state and validation*/}
+                <Input {...field} placeholder="Enter Blog Description" />
+            </FormControl>
+            <FormDescription>Enter a description for your blog. This is optional.</FormDescription>
         </FormItem>
         )}
     />

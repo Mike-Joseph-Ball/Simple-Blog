@@ -15,6 +15,8 @@ const RegisterPage = () => {
     const router = useRouter();
     //const router = useRouter();
 
+    
+    /* NO LONGER ADDING USER TO MYSQL DB
     async function Add_User_To_MySQL_DB(user_email : string,user_tokenId : string){
         //console.log('tokenId passed to Server: ',tokenId)
         //console.log('email passed to Server: ', email)
@@ -37,6 +39,7 @@ const RegisterPage = () => {
             return error
         }
     }
+    */
 
     //This function has 3 nested functions.
     //The first function creates a user profile in Firebase
