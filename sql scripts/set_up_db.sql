@@ -18,16 +18,25 @@ CREATE TABLE IF NOT EXISTS Blogs (
 
 CREATE TABLE IF NOT EXISTS Posts (
     Post_id INT auto_increment primary key,
-    Post_contest LONGTEXT,
+    Post_content LONGTEXT,
     User_email VARCHAR(100),
     Blog_id INT,
     FOREIGN KEY (Blog_id) REFERENCES Blogs(Blog_id),
 	created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS Images (
+    Image_id INT auto_increment primary key,
+    Post_id INT,
+    FOREIGN KEY (Post_id) REFERENCES Posts(Post_id),
+    Image_filename VARCHAR(50),
+    Image_caption LONGTEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)
+
 CREATE TABLE IF NOT EXISTS Comments (
     Comment_id INT auto_increment primary key,
-    Comment_contents LONGTEXT,
+    Comment_content LONGTEXT,
     User_email VARCHAR(100),
     Post_id INT,
     FOREIGN KEY (Post_id) REFERENCES Posts(Post_id),

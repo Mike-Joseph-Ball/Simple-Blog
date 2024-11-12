@@ -1,3 +1,5 @@
+/* UNUSED MODULE. USERS JUST BEING IN FIREBASE IS PERFECTLY FINE, NO NEED TO ADD THEM TO MYSQL AS OF NOW */
+
 //This module first checks if the user's JWT Token is valid, and then it adds the user to the mySQL DB.
 //This was written so that user's who signed up and were added to firebase were also added to the mySQL DB at the same time
 
@@ -9,13 +11,14 @@ const Create_User = async (req : NextApiRequest, res : NextApiResponse) => {
     //So their request body must contain all the data they want added to the DB
     //And also their token. 
 
-    const { user_tokenId, user_email } = req.body
+    const { user_tokenId } = req.body
     //console.log('CREATE_USER: idToken:',user_tokenId)
     //console.log('CREATE_USER: email:',user_email)
 
-    const isIdTokenLegit = await verify_id_token_helper(user_tokenId)
+    const decodedToken = await verify_id_token_helper(user_tokenId)
+    const user_email = decodedToken.email;
 
-    if(isIdTokenLegit){
+    if(decodedToken){
         try {
             const db = await createConnection();
             const sql = 'INSERT INTO UserAccounts (User_email) VALUES (?)'

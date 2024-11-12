@@ -62,7 +62,7 @@ const Main_Form = () => {
         try {
           if(user?.email){
             const idToken = await user.getIdToken(true);
-            const blog_add_response = await Add_Blog_To_MySQL_DB(idToken,user.email,values.blog_title,values.comment_settings_default,values.blog_template_style)
+            const blog_add_response = await Add_Blog_To_MySQL_DB(idToken,values.blog_title,values.comment_settings_default,values.blog_template_style)
             //The client middleware returns an error  if it runs into any problems
             if(blog_add_response.success === null) {
               throw new Error('The client middleware "Add_Blog_To_MySQL_DB" encountered a critical error')

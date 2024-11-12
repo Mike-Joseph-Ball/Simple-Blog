@@ -4,10 +4,11 @@ import verify_id_token_helper from '@/lib/_firebase/server_authentication/Verify
 
 const Create_Blog = async (req: NextApiRequest, res : NextApiResponse) => {
 
-    const {user_tokenId,user_email,blog_title, comment_settings_default,blog_template_style} = req.body
-    const isIdTokenLegit = await verify_id_token_helper(user_tokenId)
+    const {user_tokenId,blog_title, comment_settings_default,blog_template_style} = req.body
+    const decodedToken = await verify_id_token_helper(user_tokenId)
+    const user_email = decodedToken.email;
 
-    if(isIdTokenLegit) {
+    if(decodedToken) {
         try {
             const db = await createConnection()
             const sql = 'INSERT INTO Blogs (user_email,blog_title,comment_settings_default,blog_template_style) VALUES (?, ?, ?, ?)'
