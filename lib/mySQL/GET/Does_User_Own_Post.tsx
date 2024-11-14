@@ -11,6 +11,9 @@ async function Does_User_Own_Post(userEmail:string,postId:number) {
         if(response)
         {
             console.log("Does User Own Post Query:",response)
+            return {success: true, message:'User owns the post they are trying to edit'}
+        } else {
+            return {success: false, message: 'User does not own the post they are trying to edit'}
         }
     } catch(error:any) {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';

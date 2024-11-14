@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS Blogs (
 
 CREATE TABLE IF NOT EXISTS Posts (
     Post_id INT auto_increment primary key,
+    Post_title VARCHAR(50),
     Post_content LONGTEXT,
     User_email VARCHAR(100),
     Blog_id INT,
@@ -32,7 +33,7 @@ CREATE TABLE IF NOT EXISTS Images (
     Image_filename VARCHAR(50),
     Image_caption LONGTEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-)
+);
 
 CREATE TABLE IF NOT EXISTS Comments (
     Comment_id INT auto_increment primary key,

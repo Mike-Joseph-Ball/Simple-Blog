@@ -12,14 +12,16 @@ const Rich_Text_Editor = () => {
   const editorRef = useRef<EditorJS | null>(null); 
   const initEditorCalled = useRef(false); // To prevent double initialization
   const [user] = useLocalUserAuth();
-  const userEmail =  user?.email
 
   //Get paramas
   const searchParams = useSearchParams()
   const postId = searchParams?.get('postId')
+  if(!postId) {
+    return(<div>Attempting to enter post editor without post specified</div>)
+  }
 
   // Initialize EditorJS
-  const initEditor = () => {
+  const initEditor = (userToken:string) => {
     editorRef.current = new EditorJS({
       holder: 'editorjs',
       tools: { 
@@ -40,6 +42,7 @@ const Rich_Text_Editor = () => {
                 uploader: {
                     //Editorjs internally calls uploadByFile
                     async uploadByFile(file:any) {
+                      console.log("entered uploadByFile function")
                         //FormData is a native JS class that provides a way to construct key:value pairs
                         //representing form fields and their values. Used for sending form data like files
                         //formData can contain a mix of text and binary data. This is why I use formData here
@@ -48,11 +51,16 @@ const Rich_Text_Editor = () => {
                         formData.append('file',file)
                         formData.append('filename',file.name)
                         //postId might not be in the url
+                        console.log("postId: ",postId)
                         if(postId) {
                             formData.append('postId',postId)
                         }
                         //userEmail might not be found. Client side JWT may be corrupted or missing
-                        const userToken = await user?.getIdToken()
+                        if(!user) {
+                          return(<div>No active user session. Please log in</div>)
+                        }
+                        const userToken = await user.getIdToken()
+                        console.log("userToken: ",userToken)
                           if (userToken) {
                               formData.append('userToken', userToken);
                           }
@@ -101,9 +109,16 @@ const Rich_Text_Editor = () => {
   // Use `useEffect` to initialize once
   useEffect(() => {
     if (!initEditorCalled.current) {
-      initEditor();
-      initEditorCalled.current = true;
+      const initializeEditor = async () => {
+        if (user) {
+          const userIdToken = await user.getIdToken();
+          initEditor(userIdToken);
+          initEditorCalled.current = true;
+        }
+      };
+      initializeEditor();
     }
+  }, [user]);
 
     // Clean up on unmount
     //return () => {
@@ -111,7 +126,6 @@ const Rich_Text_Editor = () => {
     //    editorRef.current.destroy();
     //  }
     //};
-  }, []);
 
   // Save editor content
   const savePostToJSON = async () => {

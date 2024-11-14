@@ -1,6 +1,8 @@
 import { Button } from '@/components/ui/button'
 import Query_Blogs_Associated_With_User from "@/lib/mySQL/GET/Query_Blogs_Associated_With_User";
 import Link from 'next/link'
+import Blog_Selector from '@/app/(main)/(routes)/dashboard/_components/blog_selector'
+
 
 const Sidebar_Left = () => {
     return ( 
@@ -11,6 +13,8 @@ const Sidebar_Left = () => {
                     Make New Blog
                 </Button>
             </Link>
+
+            <Blog_Selector/>
 
             <Link href='/create_post'>
                 <Button variant="ghost" size="sm">
