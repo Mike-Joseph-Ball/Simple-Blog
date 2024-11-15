@@ -29,23 +29,12 @@ interface BlogDetails {
 
 const Dashboard = () => {
 
-    const hasMounted = useRef(false);
-
     const [defaultBlog,setDefaultBlog] = useState<BlogDetails | null>(null)
     const [blogLoaded,setBlogLoaded] = useState(false)
-    const [blogDetails, setBlogDetails] = useState([]);
     const [associatedPosts, setAssociatedPosts] = useState([]);
     const [fetchBlogError,setFetchBlogError] = useState<Error | string>('') 
     //const [user, setUser] = useState<User | null>(null); // Type user state with Firebase User
-    const [userRet, isPending] = useLocalUserAuth();
-    const [user, setUser] = useState<User | null>(null);
-
-    useEffect(() => {
-        if (userRet) {
-            setUser(userRet);
-        }
-    }, [userRet]);
-
+    const [user,isPending] = useLocalUserAuth();
 
     const searchParams = useSearchParams()
     let blog_id = searchParams?.get('blog_id')
@@ -74,6 +63,9 @@ const Dashboard = () => {
                     let localBlogDetails: any;
                     if(user.email) {
                         localBlogDetails = getDefaultBlogFromLocalStorage(user.email);
+                        if(localBlogDetails) {
+                            localBlogDetails = JSON.parse(localBlogDetails)
+                        }
                     }
         
                     /* BEGIN GETTING MOST USED BLOG & POST COUNT */
@@ -84,7 +76,7 @@ const Dashboard = () => {
                         //Then you can go right to getting blog details
                         console.log("blog found in the URL")
                     } else if (user.email && localBlogDetails) {
-                        console.log("blog found in local storage:",localBlogDetails.Blog_id)
+                        console.log("blog found in local storage:",localBlogDetails)
                         //If you can get the Default blog from local storage, use that and go right to getting blog details
 
                         setDefaultBlog(localBlogDetails)
@@ -107,7 +99,7 @@ const Dashboard = () => {
                             console.log('most used blog:',mostUsedBlog)
                             console.log('most used blog id:',mostUsedBlog.Blog_id)
                             if(data && mostUsedBlog && post_count) {
-                                setDefaultBlog(mostUsedBlog)
+                                setDefaultBlog(blogDetails)
                                 //setDefaultBlogInLocalStorage(user.email,data.most_used_blog)
                                 console.log("successfully added blog to local storage")
                             } else {
@@ -130,26 +122,22 @@ const Dashboard = () => {
             }
         }
         getMostUsedBlogDetails()
-    },[user,blog_id])
+    },[user])
 
     useEffect(() => {
-        if (!hasMounted.current) {
-            hasMounted.current = true; // On the first render, skip this effect
-            return;
-          }
-
-        async function getPostsAssociatedWithUser() {
-            console.log("default blog details successfully retrieved. Now retrieving associated posts.")
+        async function getPostsAssociatedWithBlog() {
             /* BEGIN GETTING BLOG DETAILS.  */
-            if(!blogDetails) {
-                console.log('BloblogDetailsg Could not be found')
-                throw new Error('Default Blog Could not be found')
-            }
+
             if(!user){
                 return
             } else if(!defaultBlog) {
+                console.log('Default Blog Could not be found. could be that the first useEffect has not finished yet.')
                 return
+                //throw new Error('Default Blog Could not be found')
             }
+
+            console.log(" Now retrieving associated posts of default blog.")
+            console.log("default blog:",defaultBlog)
             const userToken = await getIdToken(user)
             const data = await Fetch_Blog_Posts_Middleware(userToken,defaultBlog.defaultBlog.Blog_id)
             if(data && data.associatedPosts) {
@@ -165,7 +153,7 @@ const Dashboard = () => {
             //INCLUDES DIRECT BLOG DETAILS, AND POSTS ON BLOG
             /* END GETTING BLOG DETAILS */
         }
-        getPostsAssociatedWithUser()
+        getPostsAssociatedWithBlog()
     },[defaultBlog])
 
     if(!user&&!isPending) {
