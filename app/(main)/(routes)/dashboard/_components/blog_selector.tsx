@@ -6,15 +6,26 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
   } from "@/components/ui/dropdown-menu"
+import { BlogDetails } from '@/app/(main)/(routes)/dashboard/page'
 
-const Blog_Selector = () => {
+
+  type ChildComponentProps = {
+    blogInfoArray: Array<any>;
+    defaultBlog: BlogDetails;
+}
+const Blog_Selector: React.FC<ChildComponentProps>  = ({blogInfoArray,defaultBlog}) => {
     return ( <div>
         <DropdownMenu>
-            <DropdownMenuTrigger>Open</DropdownMenuTrigger>
-            
+        <DropdownMenuTrigger>
+            {defaultBlog.defaultBlog.blog_title ?? 'Blog Selector'}
+        </DropdownMenuTrigger>
+        
             <DropdownMenuContent>
-                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuLabel>Create New Blog</DropdownMenuLabel>
                 <DropdownMenuSeparator />
+                {blogInfoArray.map((blog) => (
+                    defaultBlog.defaultBlog.blog_title !== blog.blog_title && <DropdownMenuItem>{blog.blog_title}</DropdownMenuItem>
+                ))}
                 <DropdownMenuItem>Profile</DropdownMenuItem>
                 <DropdownMenuItem>Billing</DropdownMenuItem>
                 <DropdownMenuItem>Team</DropdownMenuItem>

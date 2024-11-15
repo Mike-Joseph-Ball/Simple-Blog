@@ -11,6 +11,8 @@ import { useState } from 'react'
 import Query_Most_Used_Blog from '@/lib/mySQL/GET/Query_Most_Used_Blog'
 import Fetch_Blog_Posts_Middleware from '@/lib/mySQL/GET/Fetch_Blog_Posts_Middleware'
 import { User } from 'firebase/auth'; // Firebase User type
+import Query_Blogs_Associated_With_User from '@/lib/mySQL/GET/Query_Blogs_Associated_With_User'
+
 
 interface Blog {
     Blog_id: number;
@@ -22,7 +24,7 @@ interface Blog {
     created_at: string
   }
 
-interface BlogDetails {
+export interface BlogDetails {
     defaultBlog: Blog,
     post_count: 2
 }
@@ -30,9 +32,10 @@ interface BlogDetails {
 const Dashboard = () => {
 
     const [defaultBlog,setDefaultBlog] = useState<BlogDetails | null>(null)
+    const[usersBlogs,setUsersBlogs] = useState(null)
     const [blogLoaded,setBlogLoaded] = useState(false)
     const [associatedPosts, setAssociatedPosts] = useState([]);
-    const [fetchBlogError,setFetchBlogError] = useState<Error | string>('') 
+    const [errorArray,setError] = useState<any[]>([]) 
     //const [user, setUser] = useState<User | null>(null); // Type user state with Firebase User
     const [user,isPending] = useLocalUserAuth();
 
@@ -46,17 +49,18 @@ const Dashboard = () => {
 
 
     //This effect is called on every page reload, and when the blog id changes.
+    //Retrieves blog details
     useEffect(() => {
         async function getMostUsedBlogDetails() {
 
             try  {
-                console.log('Now attempting to get Default Blog Details')
-                let blogDetails: BlogDetails | null = null;
-
                 if(!user){
-                    console.log('user not found. abandoning Default Blog Retrieval')
+                    //console.log('user not found. abandoning Default Blog Retrieval')
                     return
                     }
+
+                console.log('Now attempting to get Default Blog Details')
+                let blogDetails: BlogDetails | null = null;
                     //USER TOKEN IS UNDEFINED WHEN PASSED TO SERVER
                     const userToken = await getIdToken(user)
 
@@ -108,26 +112,52 @@ const Dashboard = () => {
                             }
                     } else{
                         console.log("the user object is not found. Cannot get blog details.")
-                        setFetchBlogError('Unable to obtain blog details')
+                        setError((prevError) => [...prevError, 'Unable to obtain blog details']);
                         return //{success:false}
                     }
                     /* END GETTING MOST USED BLOG AND POST COUNT */
 
             } catch(error:any) {
                 console.log("unkown error occured adding retrieving blog details:",error)
-                setFetchBlogError(error)
+                setError((prevError) => [...prevError, error]);
                 return // {success:false,message:"error occurred in getMostUsedBlogDetails",error:error}
             } finally {
-                setBlogLoaded(true); // End loading state
+                //setBlogLoaded(true); // End loading state
             }
         }
         getMostUsedBlogDetails()
     },[user])
 
+    //This useEffect gets the blog ids and blog titles associated with the currently logged in user
+    useEffect(() => {
+        async function getUsersAssociatedBlogs() {
+            try {
+                if(!user) {
+                    return
+                }
+                else if(!user.email){
+                    return
+                }
+                const userToken = await getIdToken(user)
+                const Blog_id_array  = await Query_Blogs_Associated_With_User(userToken,user.email)
+                setUsersBlogs(Blog_id_array.res)
+                console.log("Blog Id Array",Blog_id_array.res)
+                return
+            } catch(error) {
+                console.log('Error Retrieving User Blog details: ',error)
+                return
+            }
+        }
+        getUsersAssociatedBlogs()
+    },[user])
+
+    //Retrieve all blogs associated with user
+    //useEffect()
+
+    //retrieves posts associated with blog
     useEffect(() => {
         async function getPostsAssociatedWithBlog() {
             /* BEGIN GETTING BLOG DETAILS.  */
-
             if(!user){
                 return
             } else if(!defaultBlog) {
@@ -135,26 +165,38 @@ const Dashboard = () => {
                 return
                 //throw new Error('Default Blog Could not be found')
             }
+            try {
+    
+                console.log(" Now retrieving associated posts of default blog.")
+                console.log("default blog:",defaultBlog)
+                const userToken = await getIdToken(user)
+                const data = await Fetch_Blog_Posts_Middleware(userToken,defaultBlog.defaultBlog.Blog_id)
+                if(data && data.associatedPosts) {
+                    //update state variablesassociatedPosts
+                    console.log("Associated Posts:",data.associatedPosts)
+                    setAssociatedPosts(data.associatedPosts)
+                    //The finally block will run even if there is a return in the try or catch block
+                    return //{success:true,blogDetails:data.blogDetails,associatedPosts:data.associatedPosts}
+                } else {
+                    throw new Error(data.error)
+                    //return {success:false,message:"Fetch_Blog_Details_And_Posts_Middleware failed.",error:data.error}
+                }
+                //INCLUDES DIRECT BLOG DETAILS, AND POSTS ON BLOG
+                /* END GETTING BLOG DETAILS */
 
-            console.log(" Now retrieving associated posts of default blog.")
-            console.log("default blog:",defaultBlog)
-            const userToken = await getIdToken(user)
-            const data = await Fetch_Blog_Posts_Middleware(userToken,defaultBlog.defaultBlog.Blog_id)
-            if(data && data.associatedPosts) {
-                //update state variablesassociatedPosts
-                console.log("Associated Posts:",data.associatedPosts)
-                setAssociatedPosts(data.associatedPosts)
-                //The finally block will run even if there is a return in the try or catch block
-                return //{success:true,blogDetails:data.blogDetails,associatedPosts:data.associatedPosts}
-            } else {
-                throw new Error(data.error)
-                //return {success:false,message:"Fetch_Blog_Details_And_Posts_Middleware failed.",error:data.error}
+            } catch(error:any) {
+                console.log('could not retrieve posts associated with user:',error)
+                setError((prevError) => [...prevError, error]);
+                return
+            } finally {
+                setBlogLoaded(true)
             }
-            //INCLUDES DIRECT BLOG DETAILS, AND POSTS ON BLOG
-            /* END GETTING BLOG DETAILS */
+
         }
         getPostsAssociatedWithBlog()
     },[defaultBlog])
+
+    
 
     if(!user&&!isPending) {
         return(<div>No user object stored in browser. Log in or Sign up...</div>)
@@ -163,11 +205,13 @@ const Dashboard = () => {
         return(<div>Validating session and retrieving blog details...</div>)
     }
 
-    if(blogLoaded){
+    if(blogLoaded && usersBlogs){
+        //If this returns, it means all the blog info and posts have been loaded.
+        //We can pass state variables to components
         return ( 
             <div className=" h-full flex flex-row">
                 <div>
-                    <Sidebar_Left />
+                    <Sidebar_Left blogInfoArray={usersBlogs} defaultBlog={defaultBlog}/>
                 </div>
                 <div className='w-full'>
                     <PostContent postData={associatedPosts}/>
