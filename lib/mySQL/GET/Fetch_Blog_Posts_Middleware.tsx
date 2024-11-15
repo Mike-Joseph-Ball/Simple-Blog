@@ -1,7 +1,7 @@
 const Fetch_Blog_Details_And_Posts_Middleware = async (user_tokenId:string,blog_id:Number) => {
 
     try {
-        const res = await fetch('api/db/get/Fetch_Blog_Details_And_Posts', {
+        const res = await fetch('api/db/get/Fetch_Blog_Posts', {
             method: 'PUT',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({user_tokenId,blog_id})

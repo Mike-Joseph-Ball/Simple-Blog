@@ -16,9 +16,6 @@ const Query_Most_Used_Blog = async (tokenId:string,user_email:string) => {
             console.log('Most used blog not successfully returned')
             return data
         }
-        if(data && data.blog_id && data.post_count){
-            //set react state variables
-        }
     } catch(error) {
         console.log('something went wrong when getting most used blog:',error)
     }

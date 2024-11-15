@@ -3,7 +3,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { RowDataPacket } from 'mysql2';
 import verify_id_token_helper from '@/lib/_firebase/server_authentication/Verify_Firebase_Auth_Helper'
 
-const Get_Dashboard_Details = async (req:NextApiRequest,res:NextApiResponse) => {
+const Get_Most_Used_Blog = async (req:NextApiRequest,res:NextApiResponse) => {
     const { tokenId, user_email } = req.body
 
     const isIdTokenLegit = await verify_id_token_helper(tokenId)
@@ -37,7 +37,13 @@ const Get_Dashboard_Details = async (req:NextApiRequest,res:NextApiResponse) => 
         let [postResponse] = await db.query<RowDataPacket[]>(sqlBlogWithMostPosts, [blogIds])
         console.log("2nd SQL query succeeded")
         console.log('post response:',postResponse)
-        return res.status(200).json({success:true,message:'Most Used Blog successfully retrieved.',blog_id:postResponse[0].Blog_id,post_count:postResponse[0].post_count,blog_id_array:blogIds})
+
+        const mostUsedBlogDetailsSql = 'SELECT * FROM Blogs WHERE blog_id = (?)'
+        let [mostUsedBlog] = await db.query(mostUsedBlogDetailsSql,postResponse[0].Blog_id)
+        console.log('3rd SQL query succeeded')
+        console.log('most used blog:',mostUsedBlog)
+        
+        return res.status(200).json({success:true,most_used_blog:mostUsedBlog,post_count:postResponse[0].post_count})
 
         
     } catch(error:any) {
@@ -47,4 +53,4 @@ const Get_Dashboard_Details = async (req:NextApiRequest,res:NextApiResponse) => 
     }
 }
  
-export default Get_Dashboard_Details;
+export default Get_Most_Used_Blog;

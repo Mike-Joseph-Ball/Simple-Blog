@@ -6,23 +6,50 @@ import { useSearchParams } from 'next/navigation'
 import { getDefaultBlogFromLocalStorage,setDefaultBlogInLocalStorage } from '@/lib/utils'
 import useLocalUserAuth from '@/lib/_firebase/local_authentication/return_local_authentication';
 import { getIdToken } from 'firebase/auth'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { useState } from 'react'
 import Query_Most_Used_Blog from '@/lib/mySQL/GET/Query_Most_Used_Blog'
-import Fetch_Blog_Details_And_Posts_Middleware from '@/lib/mySQL/GET/Fetch_Blog_Details_And_Posts_Middleware'
+import Fetch_Blog_Posts_Middleware from '@/lib/mySQL/GET/Fetch_Blog_Posts_Middleware'
+import { User } from 'firebase/auth'; // Firebase User type
+
+interface Blog {
+    Blog_id: number;
+    blog_title: string;
+    blog_description: string;
+    comment_settings_default: string;
+    blog_template_style: string,
+    user_email: string,
+    created_at: string
+  }
+
+interface BlogDetails {
+    defaultBlog: Blog,
+    post_count: 2
+}
 
 const Dashboard = () => {
 
-    const [defaultBlogId,setDefaultBlogId] = useState<number | null>(null)
+    const hasMounted = useRef(false);
+
+    const [defaultBlog,setDefaultBlog] = useState<BlogDetails | null>(null)
     const [blogLoaded,setBlogLoaded] = useState(false)
     const [blogDetails, setBlogDetails] = useState([]);
     const [associatedPosts, setAssociatedPosts] = useState([]);
     const [fetchBlogError,setFetchBlogError] = useState<Error | string>('') 
+    //const [user, setUser] = useState<User | null>(null); // Type user state with Firebase User
+    const [userRet, isPending] = useLocalUserAuth();
+    const [user, setUser] = useState<User | null>(null);
+
+    useEffect(() => {
+        if (userRet) {
+            setUser(userRet);
+        }
+    }, [userRet]);
+
 
     const searchParams = useSearchParams()
     let blog_id = searchParams?.get('blog_id')
     
-    const [user,isPending] = useLocalUserAuth();
     //First, attempt to get the current blog that is stored in the browser
     //...
     //If this blog cache exists, update the blog_selector component, query for it's contents, and display it (includes blog info, post info, etc)
@@ -34,39 +61,55 @@ const Dashboard = () => {
         async function getMostUsedBlogDetails() {
 
             try  {
-                if(!user)
-                    {
-                        return false
+                console.log('Now attempting to get Default Blog Details')
+                let blogDetails: BlogDetails | null = null;
+
+                if(!user){
+                    console.log('user not found. abandoning Default Blog Retrieval')
+                    return
                     }
                     //USER TOKEN IS UNDEFINED WHEN PASSED TO SERVER
                     const userToken = await getIdToken(user)
 
-                    let localBlogId: number | null = null;
+                    let localBlogDetails: any;
                     if(user.email) {
-                        localBlogId = Number(getDefaultBlogFromLocalStorage(user.email));
+                        localBlogDetails = getDefaultBlogFromLocalStorage(user.email);
                     }
         
-                    /* BEGIN GETTING MOST USED BLOG ID */
-                    if(blog_id && user.email) {
-                        //If you got the blog id from the URL, you can go right to getting blog details
-                        console.log("blog id found in the URL")
-                        setDefaultBlogId(+(blog_id))
-                    } else if (user.email && localBlogId) {
-                        console.log("blog_id found in local storage:",localBlogId)
+                    /* BEGIN GETTING MOST USED BLOG & POST COUNT */
+                    if(defaultBlog){
+                        console.log("blog is already saved in state variable. We just have to query to get the posts.")
+                    }else if(blog_id && user.email) {
+                        //If you got the blog id from the URL, you need to first get the blog details. 
+                        //Then you can go right to getting blog details
+                        console.log("blog found in the URL")
+                    } else if (user.email && localBlogDetails) {
+                        console.log("blog found in local storage:",localBlogDetails.Blog_id)
                         //If you can get the Default blog from local storage, use that and go right to getting blog details
-                        setDefaultBlogId(localBlogId)
-                        console.log('Default Blog Id:',defaultBlogId)
+
+                        setDefaultBlog(localBlogDetails)
+                        console.log('Default Blog Id:',defaultBlog)
                     } else if(user && user.email) {
-                        console.log("Default blog id must be acquired from mySQL")
+                        console.log("Default blog must be acquired from mySQL")
                         //If you can't locate a blog to display, find the most used one and display that one.
                             console.log('userToken client:',userToken)
                             const data = await Query_Most_Used_Blog(userToken,user.email)
                             console.log('data:',data)
-                            if(data && data.blog_id && data.post_count && data.blog_id_array) {
-                                setDefaultBlogId(data.blog_id)
-                                console.log('defaultBlogId:',defaultBlogId)
-                                setDefaultBlogInLocalStorage(user.email,data.blog_id)
-                                console.log("successfully adds blog")
+
+                            if(data.message === 'user has no blogs') {
+                                console.log('user has no blogs!')
+                                return
+                            }
+                            const mostUsedBlog = data.most_used_blog[0]
+                            const blogDetails = {post_count:data.post_count,defaultBlog:mostUsedBlog}
+                            setDefaultBlog(blogDetails)
+                            const post_count = data.post_count
+                            console.log('most used blog:',mostUsedBlog)
+                            console.log('most used blog id:',mostUsedBlog.Blog_id)
+                            if(data && mostUsedBlog && post_count) {
+                                setDefaultBlog(mostUsedBlog)
+                                //setDefaultBlogInLocalStorage(user.email,data.most_used_blog)
+                                console.log("successfully added blog to local storage")
                             } else {
                                 console.log()
                                 throw new Error('Default Blog could not be found')
@@ -76,32 +119,10 @@ const Dashboard = () => {
                         setFetchBlogError('Unable to obtain blog details')
                         return //{success:false}
                     }
-                    /* END GETTING MOST USED BLOG ID */
-                console.log("makes it here?")
-                /* BEGIN GETTING BLOG DETAILS.  */
-                if(!localBlogId) {
-                    console.log('BlogId Could not be found')
-                    throw new Error('Default Blog Could not be found')
-                }
-                const data = await Fetch_Blog_Details_And_Posts_Middleware(userToken,localBlogId)
-                if(data && data.blogDetails && data.associatedPosts) {
-                    //update state variablesassociatedPosts
-                    console.log("Blog Details:",data.blogDetails)
-                    console.log("Associated Posts:",data.associatedPosts)
-
-                    setBlogDetails(data.blogDetails)
-                    setAssociatedPosts(data.associatedPosts)
-                    //The finally block will run even if there is a return in the try or catch block
-                    return //{success:true,blogDetails:data.blogDetails,associatedPosts:data.associatedPosts}
-                } else {
-                    throw new Error(data.error)
-                    //return {success:false,message:"Fetch_Blog_Details_And_Posts_Middleware failed.",error:data.error}
-                }
-                //INCLUDES DIRECT BLOG DETAILS, AND POSTS ON BLOG
-                /* END GETTING BLOG DETAILS */
+                    /* END GETTING MOST USED BLOG AND POST COUNT */
 
             } catch(error:any) {
-                console.log("unkown error occured adding retrieving dashboard details:",error)
+                console.log("unkown error occured adding retrieving blog details:",error)
                 setFetchBlogError(error)
                 return // {success:false,message:"error occurred in getMostUsedBlogDetails",error:error}
             } finally {
@@ -110,6 +131,42 @@ const Dashboard = () => {
         }
         getMostUsedBlogDetails()
     },[user,blog_id])
+
+    useEffect(() => {
+        if (!hasMounted.current) {
+            hasMounted.current = true; // On the first render, skip this effect
+            return;
+          }
+
+        async function getPostsAssociatedWithUser() {
+            console.log("default blog details successfully retrieved. Now retrieving associated posts.")
+            /* BEGIN GETTING BLOG DETAILS.  */
+            if(!blogDetails) {
+                console.log('BloblogDetailsg Could not be found')
+                throw new Error('Default Blog Could not be found')
+            }
+            if(!user){
+                return
+            } else if(!defaultBlog) {
+                return
+            }
+            const userToken = await getIdToken(user)
+            const data = await Fetch_Blog_Posts_Middleware(userToken,defaultBlog.defaultBlog.Blog_id)
+            if(data && data.associatedPosts) {
+                //update state variablesassociatedPosts
+                console.log("Associated Posts:",data.associatedPosts)
+                setAssociatedPosts(data.associatedPosts)
+                //The finally block will run even if there is a return in the try or catch block
+                return //{success:true,blogDetails:data.blogDetails,associatedPosts:data.associatedPosts}
+            } else {
+                throw new Error(data.error)
+                //return {success:false,message:"Fetch_Blog_Details_And_Posts_Middleware failed.",error:data.error}
+            }
+            //INCLUDES DIRECT BLOG DETAILS, AND POSTS ON BLOG
+            /* END GETTING BLOG DETAILS */
+        }
+        getPostsAssociatedWithUser()
+    },[defaultBlog])
 
     if(!user&&!isPending) {
         return(<div>No user object stored in browser. Log in or Sign up...</div>)

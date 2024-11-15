@@ -17,7 +17,7 @@ const Create_User = async (req : NextApiRequest, res : NextApiResponse) => {
     if(isIdTokenLegit){
         try {
             const db = await createConnection();
-            const sql = 'SELECT FROM Blogs WHERE user_email = (?)'
+            const sql = 'SELECT * FROM Blogs WHERE user_email = (?)'
             const [response] = await db.query(sql, [user_email])
             return (res.status(200).json({success:true, res:response}));
         } catch(error: any) {
