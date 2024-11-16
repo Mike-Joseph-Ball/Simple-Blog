@@ -14,8 +14,19 @@ const Fetch_Blog_Given_Id = async (req:NextApiRequest,res:NextApiResponse) => {
 
         const db = await createConnection()
         const sql = 'SELECT * FROM Blogs WHERE Blog_id = (?)'
-        const [response] = await db.query(sql,[blogId])
-        return res.status(200).json({success:true,res:response})
+        const [blogDetails] = await db.query(sql,[blogId])
+
+
+        const sqlGetPostCount = `
+        SELECT COUNT(*) AS post_count
+        FROM Posts
+        WHERE Blog_id=${blogId}
+        ORDER BY post_count DESC
+        LIMIT 1;
+        `
+        const [postCount] = await db.query(sqlGetPostCount,[blogId])
+
+        return res.status(200).json({success:true,blogDetails:blogDetails,postCount:postCount})
 
     } catch(error) {
         return res.status(500).json({success:false,message:"internal server error",error:error})

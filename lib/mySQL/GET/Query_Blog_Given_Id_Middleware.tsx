@@ -1,9 +1,9 @@
-const Query_Blog_Given_Id_Middlware = async(tokenId:string,user_email:string) => {
+const Query_Blog_Given_Id_Middlware = async(tokenId:string,blogId:string) => {
     try {
         const res = await fetch('api/db/get/Fetch_Blog_Given_Id', {
             method: 'PUT',
             headers: {'Content-Type':'application/json'},
-            body: JSON.stringify({tokenId,user_email})
+            body: JSON.stringify({tokenId,blogId})
         })
         const data = await res.json()
 

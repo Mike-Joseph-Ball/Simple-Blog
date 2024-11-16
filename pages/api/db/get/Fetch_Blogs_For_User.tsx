@@ -3,18 +3,18 @@
 import { createConnection } from '@/lib/db'
 import { NextApiRequest, NextApiResponse } from "next";
 import verify_id_token_helper from '@/lib/_firebase/server_authentication/Verify_Firebase_Auth_Helper'
-const Create_User = async (req : NextApiRequest, res : NextApiResponse) => {
+const Fetch_Blogs_For_User = async (req : NextApiRequest, res : NextApiResponse) => {
     //For every single server-side interaction requested by the client, we need to verify their JWT token.
     //So their request body must contain all the data they want added to the DB
     //And also their token. 
 
-    const { user_tokenId, user_email } = req.body
+    const { user_tokenId} = req.body
     //console.log('CREATE_USER: idToken:',user_tokenId)
     //console.log('CREATE_USER: email:',user_email)
 
-    const isIdTokenLegit = await verify_id_token_helper(user_tokenId)
-
-    if(isIdTokenLegit){
+    const decodedToken = await verify_id_token_helper(user_tokenId)
+    const user_email = decodedToken.email
+    if(decodedToken){
         try {
             const db = await createConnection();
             const sql = 'SELECT Blog_id,blog_title FROM Blogs WHERE user_email = (?)'
@@ -33,4 +33,4 @@ const Create_User = async (req : NextApiRequest, res : NextApiResponse) => {
     
 }
  
-export default Create_User;
+export default Fetch_Blogs_For_User;

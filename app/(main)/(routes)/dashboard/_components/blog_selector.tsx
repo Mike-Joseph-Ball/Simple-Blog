@@ -7,7 +7,7 @@ import {
     DropdownMenuTrigger,
   } from "@/components/ui/dropdown-menu"
 import { BlogDetails } from '@/app/(main)/(routes)/dashboard/page'
-
+import Link from 'next/link'
 
   type ChildComponentProps = {
     blogInfoArray: Array<any>;
@@ -24,12 +24,8 @@ const Blog_Selector: React.FC<ChildComponentProps>  = ({blogInfoArray,defaultBlo
                 <DropdownMenuLabel>Create New Blog</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 {blogInfoArray.map((blog) => (
-                    defaultBlog.defaultBlog.blog_title !== blog.blog_title && <DropdownMenuItem>{blog.blog_title}</DropdownMenuItem>
+                    defaultBlog.defaultBlog.blog_title !== blog.blog_title && <DropdownMenuItem key={blog.blog_id}><Link href={{pathname: '/dashboard',query: {blog_id:blog.Blog_id},}}>{blog.blog_title}</Link></DropdownMenuItem>
                 ))}
-                <DropdownMenuItem>Profile</DropdownMenuItem>
-                <DropdownMenuItem>Billing</DropdownMenuItem>
-                <DropdownMenuItem>Team</DropdownMenuItem>
-                <DropdownMenuItem>Subscription</DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>
     </div> );

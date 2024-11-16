@@ -1,16 +1,16 @@
-const Query_Blogs_Associated_With_User = async (user_tokenId:string,user_email:string) => {
+const Query_Blogs_Associated_With_User = async (user_tokenId:string) => {
     try {
         const res = await fetch('api/db/get/Fetch_Blogs_For_User', {
-            method: 'PUT',
+            method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({user_tokenId,user_email})
+            body: JSON.stringify({user_tokenId})
         })
         const data = await res.json()
 
         if(res.ok) {
-            console.log('Blog successfully added to mySQL DB')
+            console.log('Blogs associated with user successfully queried')
         } else {
-            console.log('Blog not successfully added to mySQL DB')
+            console.log('Blogs associated with user not successfully queried')
         }
         return data
     } catch(error) {

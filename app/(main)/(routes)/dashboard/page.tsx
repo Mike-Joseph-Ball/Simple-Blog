@@ -10,8 +10,8 @@ import { useEffect, useRef } from 'react'
 import { useState } from 'react'
 import Query_Most_Used_Blog from '@/lib/mySQL/GET/Query_Most_Used_Blog'
 import Fetch_Blog_Posts_Middleware from '@/lib/mySQL/GET/Fetch_Blog_Posts_Middleware'
-import { User } from 'firebase/auth'; // Firebase User type
 import Query_Blogs_Associated_With_User from '@/lib/mySQL/GET/Query_Blogs_Associated_With_User'
+import Query_Blog_Given_Id_Middlware from '@/lib/mySQL/GET/Query_Blog_Given_Id_Middleware'
 
 
 interface Blog {
@@ -38,6 +38,7 @@ const Dashboard = () => {
     const [errorArray,setError] = useState<any[]>([]) 
     //const [user, setUser] = useState<User | null>(null); // Type user state with Firebase User
     const [user,isPending] = useLocalUserAuth();
+    const [defaultBlogId,setDefaultBlogId] = useState<Number | null>(null)
 
     const searchParams = useSearchParams()
     let blog_id = searchParams?.get('blog_id')
@@ -60,7 +61,6 @@ const Dashboard = () => {
                     }
 
                 console.log('Now attempting to get Default Blog Details')
-                let blogDetails: BlogDetails | null = null;
                     //USER TOKEN IS UNDEFINED WHEN PASSED TO SERVER
                     const userToken = await getIdToken(user)
 
@@ -78,7 +78,14 @@ const Dashboard = () => {
                     }else if(blog_id && user.email) {
                         //If you got the blog id from the URL, you need to first get the blog details. 
                         //Then you can go right to getting blog details
-                        console.log("blog found in the URL")
+                        const data = await Query_Blog_Given_Id_Middlware(userToken,blog_id)
+                        if(!data.success) {
+                            console.log('Query to get Blog given ID found in URL.')
+                        }
+                        console.log("blog found in the URL. Successfully Queried for this blog's immediate details: ",data)
+                        const mostUsedBlog = data.blogDetails[0]
+                        setDefaultBlog({post_count:data.post_count,defaultBlog:mostUsedBlog})
+                        setDefaultBlogId(data.blogDetails[0].Blog_id)
                     } else if (user.email && localBlogDetails) {
                         console.log("blog found in local storage:",localBlogDetails)
                         //If you can get the Default blog from local storage, use that and go right to getting blog details
@@ -120,6 +127,7 @@ const Dashboard = () => {
             } catch(error:any) {
                 console.log("unkown error occured adding retrieving blog details:",error)
                 setError((prevError) => [...prevError, error]);
+                setBlogLoaded( false)
                 return // {success:false,message:"error occurred in getMostUsedBlogDetails",error:error}
             } finally {
                 //setBlogLoaded(true); // End loading state
@@ -139,9 +147,10 @@ const Dashboard = () => {
                     return
                 }
                 const userToken = await getIdToken(user)
-                const Blog_id_array  = await Query_Blogs_Associated_With_User(userToken,user.email)
-                setUsersBlogs(Blog_id_array.res)
-                console.log("Blog Id Array",Blog_id_array.res)
+                console.log('user token:',userToken)
+                const Blog_info_array  = await Query_Blogs_Associated_With_User(userToken)
+                setUsersBlogs(Blog_info_array.res)
+                console.log("Blog Id Array",Blog_info_array.res)
                 return
             } catch(error) {
                 console.log('Error Retrieving User Blog details: ',error)
@@ -205,7 +214,7 @@ const Dashboard = () => {
         return(<div>Validating session and retrieving blog details...</div>)
     }
 
-    if(blogLoaded && usersBlogs){
+    if(blogLoaded && usersBlogs && defaultBlog){
         //If this returns, it means all the blog info and posts have been loaded.
         //We can pass state variables to components
         return ( 
