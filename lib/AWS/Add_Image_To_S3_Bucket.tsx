@@ -9,7 +9,7 @@ import {
   } from "@aws-sdk/client-s3";
 
 
-async function Add_Image_To_S3_Bucket(file:Buffer){
+async function Add_Image_To_S3_Bucket(file:Buffer,key:string){
     console.log(".env vars: ",process.env)
     console.log("region: ",process.env.AWS_REGION)
     console.log("accessKeyId: ",process.env.AWS_ACCESS_KEY)
@@ -27,12 +27,12 @@ async function Add_Image_To_S3_Bucket(file:Buffer){
     const result = await s3Client.send(
         new PutObjectCommand({
             Bucket: 'simplebloglivebucket',
-            Key: "my-first-object.txt",
+            Key: key,
             Body: file,
         }),
   );
 
-  return result;
+  return `https://simplebloglivebucket.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`;
 
   }
 

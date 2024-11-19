@@ -1,6 +1,9 @@
 import { createConnection } from '@/lib/db'
 import { NextApiRequest, NextApiResponse } from "next";
+
+//This allowed us to get the proper data type exported from mysql
 import { RowDataPacket } from 'mysql2';
+
 import verify_id_token_helper from '@/lib/_firebase/server_authentication/Verify_Firebase_Auth_Helper'
 
 const Get_Most_Used_Blog = async (req:NextApiRequest,res:NextApiResponse) => {

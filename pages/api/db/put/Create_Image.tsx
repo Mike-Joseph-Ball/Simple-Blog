@@ -71,24 +71,25 @@ const Create_Image = async (req: NextApiRequest, res : NextApiResponse) => {
         if (!doesUserOwnPost.success) {
             console.log("The user does not own the post");
             throw new Error('The user does not own the post');
-        }
+    }
 
-        if(file)
+        /* add the user to the mySQL DB */
+        const db = await createConnection();
+        const sql = 'INSERT INTO Images (Post_id, Image_filename) VALUES (?, ?)';
+        const [response] = await db.query<ResultSetHeader>(sql, [postId, filename]);
+
+        if(file && response.insertId)
             {
                 //We need to get the unique image identifier before adding the image to the S3 bucket. We can do this
                 //By adding the image to the mySQL DB and recieving it's incremeting primary key.
                 //we have to add it to the images table, and also the users_images table.
                 const fileBinaryData = fs.readFileSync(file.filepath); // returns a Buffer
-                const result = await Add_Image_To_S3_Bucket(fileBinaryData)
-                console.log("Add_Image_To_S3_Bucket result:",result)
+                const public_url = await Add_Image_To_S3_Bucket(fileBinaryData,response.insertId.toString())
+                console.log("Add_Image_To_S3_Bucket result:",public_url)
+                return res.status(200).json({ success: true, 'file': {url:public_url} });
             } else {
                 throw new Error('file missing when tried to upload to S3 bucket')
             }
-        /* add the user to the mySQL DB */
-        const db = await createConnection();
-        const sql = 'INSERT INTO Images (Post_id, Image_filename) VALUES (?, ?)';
-        const [response] = await db.query<ResultSetHeader>(sql, [postId, filename]);
-        return res.status(200).json({ success: true, res: response, url:`${process.env.ABSOLUTE_URL}/api/image_url_endpoint/${response.insertId}`});
     } catch (error: any) {
         // Check if the error has an SQL `errno` property
         if (error.errno) {

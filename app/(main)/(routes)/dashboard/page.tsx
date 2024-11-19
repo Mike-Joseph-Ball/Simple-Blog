@@ -33,7 +33,7 @@ const Dashboard = () => {
 
     const [defaultBlog,setDefaultBlog] = useState<BlogDetails | null>(null)
     const[usersBlogs,setUsersBlogs] = useState(null)
-    const [blogLoaded,setBlogLoaded] = useState(false)
+    const [blogLoaded,setBlogLoaded] = useState<boolean|null>(null)
     const [associatedPosts, setAssociatedPosts] = useState([]);
     const [errorArray,setError] = useState<any[]>([]) 
     //const [user, setUser] = useState<User | null>(null); // Type user state with Firebase User
@@ -125,9 +125,9 @@ const Dashboard = () => {
                     /* END GETTING MOST USED BLOG AND POST COUNT */
 
             } catch(error:any) {
-                console.log("unkown error occured adding retrieving blog details:",error)
+                console.log("unknown error occured adding retrieving blog details:",error)
                 setError((prevError) => [...prevError, error]);
-                setBlogLoaded( false)
+                setBlogLoaded(false)
                 return // {success:false,message:"error occurred in getMostUsedBlogDetails",error:error}
             } finally {
                 //setBlogLoaded(true); // End loading state
@@ -210,8 +210,19 @@ const Dashboard = () => {
     if(!user&&!isPending) {
         return(<div>No user object stored in browser. Log in or Sign up...</div>)
     }
-    if(!blogLoaded) {
+    if(blogLoaded === null) {
         return(<div>Validating session and retrieving blog details...</div>)
+    }
+
+    if(!blogLoaded) {
+        return(
+            <div>
+                <h1>Error occured when trying to retrieve dashboard details:</h1>
+                {errorArray.map((error:any,index:any) => (
+                    error.errno === -111 ? <p className="text-red-700" >Connection to database was unsuccessful</p> : <p className="text-red-700" key={index}>{error.toString()}</p>
+                ))}
+            </div>
+        )
     }
 
     if(blogLoaded && usersBlogs && defaultBlog){

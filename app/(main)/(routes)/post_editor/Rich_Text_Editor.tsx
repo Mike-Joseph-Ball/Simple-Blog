@@ -81,7 +81,7 @@ const Rich_Text_Editor = () => {
                                 return {
                                     success: 1,
                                     file: {
-                                        url: data.url, // Your backend should return the image URL
+                                        url: data.file.url, // Your backend should return the image URL
                                     },
                                 };
                             })
