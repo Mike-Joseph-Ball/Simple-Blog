@@ -1,25 +1,26 @@
 'use client'
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState} from 'react';
 import EditorJS from '@editorjs/editorjs';
 import Header from '@editorjs/header'; 
 import List from '@editorjs/list'; 
 import ImageTool from '@editorjs/image';
 import useLocalUserAuth from '@/lib/_firebase/local_authentication/return_local_authentication';
 import { useSearchParams } from 'next/navigation'
+import Update_Post_Middleware from '@/lib/mySQL/PUT/Update_Post_Middleware';
 
 const Rich_Text_Editor = () => {
   const editorRef = useRef<EditorJS | null>(null); 
   const initEditorCalled = useRef(false); // To prevent double initialization
+  const [userToken,setUserToken] = useState<string|null>(null)
+  const [pageLoaded,setPageLoaded] = useState<boolean|null>(null)
   const [user] = useLocalUserAuth();
 
   //Get paramas
   const searchParams = useSearchParams()
   const postId = searchParams?.get('postId')
-  if(!postId) {
-    return(<div>Attempting to enter post editor without post specified</div>)
-  }
-
+  
+  
   // Initialize EditorJS
   const initEditor = (userToken:string) => {
     editorRef.current = new EditorJS({
@@ -108,15 +109,28 @@ const Rich_Text_Editor = () => {
 
   // Use `useEffect` to initialize once
   useEffect(() => {
-    if (!initEditorCalled.current) {
-      const initializeEditor = async () => {
-        if (user) {
-          const userIdToken = await user.getIdToken();
-          initEditor(userIdToken);
-          initEditorCalled.current = true;
-        }
-      };
-      initializeEditor();
+    try{
+      if(!user){
+        return
+      }
+
+      if (!initEditorCalled.current) {
+        const initializeEditor = async () => {
+          if (user) {
+            const userIdToken = await user.getIdToken();
+            setUserToken(userIdToken)
+            initEditor(userIdToken);
+            initEditorCalled.current = true;
+          }
+          else {
+            throw new Error('user not defined when trying to initialize editor')
+          }
+        };
+        initializeEditor();
+      }
+    } catch (error) {
+      console.log('error initializing editor: ',error)
+      setPageLoaded(false)
     }
   }, [user]);
 
@@ -130,21 +144,40 @@ const Rich_Text_Editor = () => {
   // Save editor content
   const savePostToJSON = async () => {
     try {
+      if(!userToken) {
+        throw new Error('userToken somehow not defined by the time I save the post!')
+      } else if (!postId) {
+        throw new Error('postId is missing. cannot save post')
+      }
       if (editorRef.current) {
         const savedData = await editorRef.current.save();
+        const savedDataString = JSON.stringify(savedData)
+        const updatePostResponse = await Update_Post_Middleware(userToken,postId,'Test title',savedDataString)
+        if(updatePostResponse.success === false) {
+          throw new Error('Update Post Failed')
+        }
         console.log('Editor data:', JSON.stringify(savedData, null, 4));
+        console.log('Updating Post in DB response:',updatePostResponse)
       }
     } catch (error) {
       console.log("Saving error", error);
     }
   };
 
-  return (
-    <div className="p-4">
-      <div id="editorjs" className="min-h-[300px] text-left border p-4 mb-4"></div>
-      <button onClick={savePostToJSON}>Save Content</button>
-    </div>
-  );
+  if(!postId) {
+    return(<div>Attempting to enter post editor without post specified</div>)
+  } else if(!user) {
+    return(<div>user session is missing</div>)
+  } else {
+    return (
+      <div className="p-4">
+        <div id="editorjs" className="min-h-[300px] text-left border p-4 mb-4"></div>
+        <button onClick={savePostToJSON}>Save Content</button>
+      </div>
+    );
+  }
+
+
 };
 
 export default Rich_Text_Editor;

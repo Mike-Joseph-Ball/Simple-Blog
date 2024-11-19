@@ -8,7 +8,6 @@ const Query_Most_Used_Blog = async (tokenId:string,user_email:string) => {
             body: JSON.stringify({tokenId,user_email})
         })
         const data = await res.json()
-        console.log("Middle Query Most Used Blog - UserToken: ",tokenId)
         if(res.ok){
             console.log('Most Used Blog Successfully Returned')
             return data
