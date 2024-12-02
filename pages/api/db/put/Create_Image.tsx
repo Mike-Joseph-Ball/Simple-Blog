@@ -1,7 +1,7 @@
 import { createConnection } from '@/lib/db'
 import { NextApiRequest, NextApiResponse } from "next";
 import verify_id_token_helper from '@/lib/_firebase/server_authentication/Verify_Firebase_Auth_Helper'
-import Does_User_Own_Post from '@/lib/mySQL/GET/Does_User_Own_Post'
+import Does_User_Own_Post from '@/lib/mySQL/client_side/GET/Does_User_Own_Post'
 import formidable from 'formidable';
 import Add_Image_To_S3_Bucket from '@/lib/AWS/Add_Image_To_S3_Bucket'
 import fs from 'fs';

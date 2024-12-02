@@ -1,5 +1,4 @@
 'use client'
-
 import Sidebar_Left from '@/app/(main)/(routes)/dashboard/_components/sidebar_left'
 import PostContent from '@/app/(main)/(routes)/dashboard/_components/post_content'
 import { useSearchParams } from 'next/navigation'
@@ -8,10 +7,10 @@ import useLocalUserAuth from '@/lib/_firebase/local_authentication/return_local_
 import { getIdToken } from 'firebase/auth'
 import { useEffect, useRef } from 'react'
 import { useState } from 'react'
-import Query_Most_Used_Blog from '@/lib/mySQL/GET/Query_Most_Used_Blog'
-import Fetch_Blog_Posts_Middleware from '@/lib/mySQL/GET/Fetch_Blog_Posts_Middleware'
-import Query_Blogs_Associated_With_User from '@/lib/mySQL/GET/Query_Blogs_Associated_With_User'
-import Query_Blog_Given_Id_Middlware from '@/lib/mySQL/GET/Query_Blog_Given_Id_Middleware'
+import Query_Most_Used_Blog from '@/lib/mySQL/client_side/GET/Query_Most_Used_Blog'
+import Fetch_Blog_Posts_Middleware from '@/lib/mySQL/client_side/GET/Fetch_Blog_Posts_Middleware'
+import Query_Blogs_Associated_With_User from '@/lib/mySQL/client_side/GET/Query_Blogs_Associated_With_User'
+import Query_Blog_Given_Id_Middlware from '@/lib/mySQL/client_side/GET/Query_Blog_Given_Id_Middleware'
 
 
 interface Blog {
@@ -32,9 +31,9 @@ export interface BlogDetails {
 const Dashboard = () => {
 
     const [defaultBlog,setDefaultBlog] = useState<BlogDetails | null>(null)
-    const[usersBlogs,setUsersBlogs] = useState(null)
+    const[usersBlogs,setUsersBlogs] = useState([])
     const [blogLoaded,setBlogLoaded] = useState<boolean|null>(null)
-    const [associatedPosts, setAssociatedPosts] = useState([]);
+    const [associatedPosts, setAssociatedPosts] = useState<any[]>([]);
     const [errorArray,setError] = useState<any[]>([]) 
     //const [user, setUser] = useState<User | null>(null); // Type user state with Firebase User
     const [user,isPending] = useLocalUserAuth();
@@ -101,7 +100,10 @@ const Dashboard = () => {
 
                             if(data.message === 'user has no blogs') {
                                 console.log('user has no blogs!')
+                                setBlogLoaded(true)
                                 return
+                            } else if (data.message === 'blogs do not have any posts') {
+                                console.log('default blog has no posts')
                             }
                             const mostUsedBlog = data.most_used_blog[0]
                             const blogDetails = {post_count:data.post_count,defaultBlog:mostUsedBlog}
@@ -225,7 +227,7 @@ const Dashboard = () => {
         )
     }
 
-    if(blogLoaded && usersBlogs && defaultBlog){
+    if(blogLoaded){
         //If this returns, it means all the blog info and posts have been loaded.
         //We can pass state variables to components
         return ( 

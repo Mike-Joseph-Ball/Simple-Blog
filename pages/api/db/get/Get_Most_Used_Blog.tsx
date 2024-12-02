@@ -1,9 +1,8 @@
 import { createConnection } from '@/lib/db'
 import { NextApiRequest, NextApiResponse } from "next";
-
 //This allowed us to get the proper data type exported from mysql
 import { RowDataPacket } from 'mysql2';
-
+import  getBlogDetailsGivenBlogId  from '@/lib/mySQL/server_side/get/blog_details_given_blog_id'
 import verify_id_token_helper from '@/lib/_firebase/server_authentication/Verify_Firebase_Auth_Helper'
 
 const Get_Most_Used_Blog = async (req:NextApiRequest,res:NextApiResponse) => {
@@ -25,7 +24,7 @@ const Get_Most_Used_Blog = async (req:NextApiRequest,res:NextApiResponse) => {
         
         //now that we have all the blog ids associated with the user, we can query
         //the posts table to find the blog with the most posts
-        if(blogIds.length == 0) {
+        if(blogIds.length === 0) {
             return res.status(201).json({success:true,message:'user has no blogs'})
         }
         console.log('blog ids:',blogIds)
@@ -41,8 +40,32 @@ const Get_Most_Used_Blog = async (req:NextApiRequest,res:NextApiResponse) => {
         console.log("2nd SQL query succeeded")
         console.log('post response:',postResponse)
 
+        //This is to check whether or not the user's blogs have any posts associated with them.
+        //If the user has no posts associated with any of their blogs, postResponse will return an empty array
+        if(!postResponse[0]) {
+            //If this returns true, we need to use the most recently created blog_id to retrieve all those blog details
+            //and return that blog, with a post_count of zero.
+
+            //CALL SERVER SIDE UTILITY FUNCTION THAT GETS BLOG DETAILS GIVEN BLOG ID
+            console.log('most recent blog id:',blogIds[blogIds.length -1])
+            const blogDetails = await getBlogDetailsGivenBlogId(blogIds.length -1)
+
+            //if the returned object is an error, throw it!
+            if(blogDetails instanceof Error) {
+                throw blogDetails
+            }
+
+            //Display the blogDetails
+            console.log('blog details:',blogDetails)
+
+            //CREATE BLOG RETURN STRUCTURE BY ADDING '0' POST COUNT AND RETURNING
+            return res.status(200).json({success:true,most_used_blog:blogDetails,post_count:0})
+        }
+
         const mostUsedBlogDetailsSql = 'SELECT * FROM Blogs WHERE blog_id = (?)'
         let [mostUsedBlog] = await db.query(mostUsedBlogDetailsSql,postResponse[0].Blog_id)
+
+
         console.log('3rd SQL query succeeded')
         console.log('most used blog:',mostUsedBlog)
         

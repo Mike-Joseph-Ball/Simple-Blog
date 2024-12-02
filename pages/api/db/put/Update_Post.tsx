@@ -5,9 +5,8 @@ import { RowDataPacket } from 'mysql2';
 
 const Update_Post = async (req : NextApiRequest, res : NextApiResponse) => {
     try {
-        console.log('yo')
         const { tokenId,Post_id,Post_title,Post_content } = req.body
-        console.log('hi')
+        //console.log('tokenId:',tokenId)
         //1. Verify the user's token is valid
         const decodedToken = await verify_id_token_helper(tokenId)
         if(!decodedToken) {

@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS Blogs (
     Blog_id INT auto_increment primary key,
     blog_title VARCHAR(100) UNIQUE,
     blog_description VARCHAR(100),
-    comment_settings_default VARCHAR(50),
+    comment_settings_default INT DEFAULT 0,
     blog_template_style VARCHAR(50),
     user_email VARCHAR(100),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -19,6 +19,8 @@ CREATE TABLE IF NOT EXISTS Blogs (
 CREATE TABLE IF NOT EXISTS Posts (
     Post_id INT auto_increment primary key,
     Post_title VARCHAR(50),
+    Is_post_public BIT DEFAULT 0,
+    Comment_settings INT DEFAULT 0,
     Post_content LONGTEXT,
     User_email VARCHAR(100),
     Blog_id INT,

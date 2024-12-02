@@ -11,20 +11,21 @@ import Link from 'next/link'
 
   type ChildComponentProps = {
     blogInfoArray: Array<any>;
-    defaultBlog: BlogDetails;
+    defaultBlog: BlogDetails|null;
 }
-const Blog_Selector: React.FC<ChildComponentProps>  = ({blogInfoArray,defaultBlog}) => {
+const Blog_Selector: React.FC<ChildComponentProps>  = ({blogInfoArray = [], defaultBlog=null}) => {
     return ( <div>
         <DropdownMenu>
         <DropdownMenuTrigger>
-            {defaultBlog.defaultBlog.blog_title ?? 'Blog Selector'}
+            {defaultBlog ? defaultBlog.defaultBlog.blog_title : 'Blog Selector'}
         </DropdownMenuTrigger>
         
             <DropdownMenuContent>
-                <DropdownMenuLabel>Create New Blog</DropdownMenuLabel>
+                <Link href='/create_blog'><DropdownMenuLabel>Create New Blog</DropdownMenuLabel></Link>
+                
                 <DropdownMenuSeparator />
-                {blogInfoArray.map((blog) => (
-                    defaultBlog.defaultBlog.blog_title !== blog.blog_title && <DropdownMenuItem key={blog.blog_id}><Link href={{pathname: '/dashboard',query: {blog_id:blog.Blog_id},}}>{blog.blog_title}</Link></DropdownMenuItem>
+                {blogInfoArray && blogInfoArray.map((blog) => (
+                    defaultBlog && defaultBlog.defaultBlog.blog_title !== blog.blog_title && <DropdownMenuItem key={blog.blog_id}><a href={'/dashboard?blog_id=' + blog.Blog_id}>{blog.blog_title}</a></DropdownMenuItem>
                 ))}
             </DropdownMenuContent>
         </DropdownMenu>

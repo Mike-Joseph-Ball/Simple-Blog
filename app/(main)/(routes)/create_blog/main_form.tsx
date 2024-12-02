@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { useRouter } from 'next/navigation'
-import  Add_Blog_To_MySQL_DB  from '@/lib/mySQL/PUT/Add_Blog_To_MYSQL_DB'
+import  Add_Blog_To_MySQL_DB  from '@/lib/mySQL/client_side/PUT/Add_Blog_To_MYSQL_DB'
 import userAuth from '@/lib/_firebase/local_authentication/return_local_authentication';
 import { useState } from 'react'
 const Main_Form = () => {
@@ -62,7 +62,17 @@ const Main_Form = () => {
         try {
           if(user?.email){
             const idToken = await user.getIdToken(true);
-            const blog_add_response = await Add_Blog_To_MySQL_DB(idToken,values.blog_title,values.comment_settings_default,values.blog_template_style)
+            let comment_settings;
+            if(values.comment_settings_default === 'comments allowed') {
+              comment_settings = 0
+            } else if (values.comment_settings_default === 'comments must be approved') {
+              comment_settings = 1
+            } else if(values.comment_settings_default === 'comments disabled'){
+              comment_settings = 2
+            } else {
+              throw new Error('comment settings are different than expected. cannot create blog')
+            }
+            const blog_add_response = await Add_Blog_To_MySQL_DB(idToken,values.blog_title,comment_settings,values.blog_template_style)
             //The client middleware returns an error  if it runs into any problems
             if(blog_add_response.success === null) {
               throw new Error('The client middleware "Add_Blog_To_MySQL_DB" encountered a critical error')

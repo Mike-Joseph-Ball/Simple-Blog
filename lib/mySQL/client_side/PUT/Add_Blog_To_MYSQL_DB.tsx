@@ -1,4 +1,4 @@
-const Add_Blog_To_MySQL_DB = async (user_tokenId: string,blog_title :string,comment_settings_default:string,blog_template_style:string) => {
+const Add_Blog_To_MySQL_DB = async (user_tokenId: string,blog_title :string,comment_settings_default:number,blog_template_style:string) => {
     try {
         const res = await fetch('api/db/put/Create_Blog' , {
             method: 'PUT',

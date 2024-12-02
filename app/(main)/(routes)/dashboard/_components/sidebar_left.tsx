@@ -1,15 +1,15 @@
 import { Button } from '@/components/ui/button'
-import Query_Blogs_Associated_With_User from "@/lib/mySQL/GET/Query_Blogs_Associated_With_User";
+import Query_Blogs_Associated_With_User from "@/lib/mySQL/client_side/GET/Query_Blogs_Associated_With_User";
 import Link from 'next/link'
 import Blog_Selector from '@/app/(main)/(routes)/dashboard/_components/blog_selector'
 import { BlogDetails } from '@/app/(main)/(routes)/dashboard/page'
 
 type ChildComponentProps = {
     blogInfoArray: Array<any>;
-    defaultBlog: BlogDetails;
+    defaultBlog: BlogDetails | null;
 }
 
-const Sidebar_Left: React.FC<ChildComponentProps> = ({blogInfoArray,defaultBlog}) => {
+const Sidebar_Left: React.FC<ChildComponentProps> = ({blogInfoArray = [],defaultBlog = null}) => {
     return ( 
         <div className=" flex flex-col p-6 w-40 h-full justify-center items-center bg-slate-400">
             
@@ -18,10 +18,9 @@ const Sidebar_Left: React.FC<ChildComponentProps> = ({blogInfoArray,defaultBlog}
                     Make New Blog
                 </Button>
             </Link>
-
             <Blog_Selector blogInfoArray={blogInfoArray} defaultBlog={defaultBlog}/>
 
-            <Link href='/create_post'>
+            <Link href='/post_editor'>
                 <Button variant="ghost" size="sm">
                     Make New Post
                 </Button>

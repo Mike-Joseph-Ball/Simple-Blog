@@ -7,13 +7,30 @@ import List from '@editorjs/list';
 import ImageTool from '@editorjs/image';
 import useLocalUserAuth from '@/lib/_firebase/local_authentication/return_local_authentication';
 import { useSearchParams } from 'next/navigation'
-import Update_Post_Middleware from '@/lib/mySQL/PUT/Update_Post_Middleware';
+import Update_Post_Middleware from '@/lib/mySQL/client_side/PUT/Update_Post_Middleware';
+import Fetch_Post_Given_Post_Id_Middleware from '@/lib/mySQL/client_side/GET/Fetch_Post_Given_Post_Id_Middleware';
+import Toggle_Post_Visibility_Middleware from '@/lib/mySQL/client_side/PUT/Toggle_Post_Visibility_Middleware';
+
+interface OutputData {
+  time: number,
+  blocks: Array<{
+    type: string;
+    data: Record<string, unknown>;
+  }>;
+  version: string
+}
 
 const Rich_Text_Editor = () => {
   const editorRef = useRef<EditorJS | null>(null); 
   const initEditorCalled = useRef(false); // To prevent double initialization
   const [userToken,setUserToken] = useState<string|null>(null)
   const [pageLoaded,setPageLoaded] = useState<boolean|null>(null)
+  interface PostData {
+    Post_content: string;
+    // Add other properties if needed
+  }
+
+  const [savedPostData, setSavedPostData] = useState<PostData | null>(null);
   const [user] = useLocalUserAuth();
 
   //Get paramas
@@ -104,8 +121,10 @@ const Rich_Text_Editor = () => {
       },
       onReady: () => console.log("Editor is ready"),
       onChange: () => console.log("Content changed"),
+      data: savedPostData ? JSON.parse(savedPostData.Post_content) as OutputData : undefined
     });
   };
+
 
   // Use `useEffect` to initialize once
   useEffect(() => {
@@ -114,17 +133,21 @@ const Rich_Text_Editor = () => {
         return
       }
 
+      //check if the post is in the mySQL db with data already. If it is, set the state variable
       if (!initEditorCalled.current) {
         const initializeEditor = async () => {
-          if (user) {
-            const userIdToken = await user.getIdToken();
-            setUserToken(userIdToken)
-            initEditor(userIdToken);
-            initEditorCalled.current = true;
-          }
-          else {
+          if(!user) {
             throw new Error('user not defined when trying to initialize editor')
           }
+          const idToken = await user.getIdToken();
+          if(postId) {
+            const postData = await Fetch_Post_Given_Post_Id_Middleware(idToken,postId)
+            setSavedPostData(postData)
+            console.log("Post Saved Data:",savedPostData)
+          }
+          setUserToken(idToken)
+          initEditor(idToken);
+          initEditorCalled.current = true;
         };
         initializeEditor();
       }
@@ -152,17 +175,41 @@ const Rich_Text_Editor = () => {
       if (editorRef.current) {
         const savedData = await editorRef.current.save();
         const savedDataString = JSON.stringify(savedData)
+        console.log("User Token:",userToken)
         const updatePostResponse = await Update_Post_Middleware(userToken,postId,'Test title',savedDataString)
         if(updatePostResponse.success === false) {
-          throw new Error('Update Post Failed')
+          throw new Error('Update Post Failed',updatePostResponse)
         }
+        console.log('savedData',savedData)
         console.log('Editor data:', JSON.stringify(savedData, null, 4));
         console.log('Updating Post in DB response:',updatePostResponse)
+        return(updatePostResponse)
       }
     } catch (error) {
       console.log("Saving error", error);
+      return(error)
     }
   };
+
+  const publishPost = async () => {
+    try {
+      const resultSave = await savePostToJSON()
+      if(resultSave.success !== true) {
+        throw new Error('saving post failed:',resultSave)
+      }
+      if(userToken && postId){
+      const resultToggle = await Toggle_Post_Visibility_Middleware(userToken,postId)
+      if(resultToggle.success !== true) {
+        throw new Error('toggle post visibility failed:',resultToggle)
+      }
+      } else {
+        throw new Error('post publishing failed, userToken and/or postId is undefined')
+      }
+    } catch (error) {
+      return {success:false,error:error}
+    }
+    //switches the published BIT on the post
+  }
 
   if(!postId) {
     return(<div>Attempting to enter post editor without post specified</div>)
@@ -172,7 +219,11 @@ const Rich_Text_Editor = () => {
     return (
       <div className="p-4">
         <div id="editorjs" className="min-h-[300px] text-left border p-4 mb-4"></div>
-        <button onClick={savePostToJSON}>Save Content</button>
+        <div className='flex flex-row justify-between'>
+          <button onClick={savePostToJSON}>Save Post</button>
+          <button onClick={publishPost}>Publish Post</button>
+        </div>
+
       </div>
     );
   }
