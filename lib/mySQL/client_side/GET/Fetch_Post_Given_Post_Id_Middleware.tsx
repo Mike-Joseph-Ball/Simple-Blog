@@ -8,14 +8,14 @@ const Fetch_Post_Given_Post_Id_Middleware = async(tokenId:string,postId:string) 
         const data = await res.json()
 
         if(res.ok) {
-            console.log('QUERY_BLOG_GIVEN_ID_MIDDLEWARE: Blog details successfully fetched')
+            console.log('FETCH_POST_GIVEN_ID_MIDDLEWARE: Blog details successfully fetched')
         } else {
-            console.log("QUERY_BLOG_GIVEN_ID_MIDDLEWARE: Blog details not successfully fetched")
+            console.log("FETCH_POST_GIVEN_ID_MIDDLEWARE: Blog details not successfully fetched")
         }
         return data
 
     } catch(error) {
-        console.log('QUERY_BLOG_GIVEN_ID_MIDDLEWARE: something went wrong in retrieving blog details: ',error)
+        console.log('FETCH_POST_GIVEN_ID_MIDDLEWARE: something went wrong in retrieving blog details: ',error)
         return error
     }
     

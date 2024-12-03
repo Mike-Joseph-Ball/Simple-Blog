@@ -78,10 +78,10 @@ const Main_Form = () => {
               throw new Error('The client middleware "Add_Blog_To_MySQL_DB" encountered a critical error')
             }
             if(blog_add_response.success === true) {
+              console.log("Blog Add Response:",blog_add_response)
               //This is where we route to the dashboard
               const query = new URLSearchParams({
-                user_email: user.email,
-                blog_title: values.blog_title,
+                blog_id: blog_add_response.res.insertId
                 //comment_settings_default: values.comment_settings_default,
               }).toString()
       

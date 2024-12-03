@@ -20,7 +20,10 @@ const Sidebar_Left: React.FC<ChildComponentProps> = ({blogInfoArray = [],default
             </Link>
             <Blog_Selector blogInfoArray={blogInfoArray} defaultBlog={defaultBlog}/>
 
-            <Link href='/post_editor'>
+            <Link href={{
+                    pathname: '/post_editor', // Destination page
+                    query: { blog_id: defaultBlog?.defaultBlog.Blog_id }, // Query parameters
+                }}>
                 <Button variant="ghost" size="sm">
                     Make New Post
                 </Button>

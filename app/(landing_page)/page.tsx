@@ -13,7 +13,7 @@ const MarketingPage = () => {
     console.log("Logged in User on Main Page: ", auth.currentUser)
 
 
-    const isValid = useCurrentFirebaseUserVerify(); // Call the hook directly
+    const {isValid,user} = useCurrentFirebaseUserVerify(); // Call the hook directly
     console.log("isValid: ",isValid)
 
     useEffect(() => {

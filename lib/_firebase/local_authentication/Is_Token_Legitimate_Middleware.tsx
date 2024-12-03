@@ -51,7 +51,7 @@ const useCurrentFirebaseUserVerify = () => {
         }
     }, [user, isPending]); // Add dependencies to the effect
 
-    return isValid; // Return the validity of the user token
+    return {isValid,user} // Return the validity of the user token
 };
 
 export default useCurrentFirebaseUserVerify;

@@ -7,9 +7,9 @@ import { auth } from '@/lib/_firebase/config'
 
 const CreateBlog = () => {
     
-    console.log("Logged in User: ", auth.currentUser)
+    //console.log("Logged in User: ", auth.currentUser)
 
-    const isValid = useCurrentFirebaseUserVerify(); // Call the hook directly
+    const {isValid,user} = useCurrentFirebaseUserVerify(); // Call the hook directly
 
     useEffect(() => {
         if (isValid) {

@@ -180,6 +180,7 @@ const Dashboard = () => {
     
                 console.log(" Now retrieving associated posts of default blog.")
                 console.log("default blog:",defaultBlog)
+                console.log('defaultBlog.defaultBlog:',defaultBlog.defaultBlog)
                 const userToken = await getIdToken(user)
                 const data = await Fetch_Blog_Posts_Middleware(userToken,defaultBlog.defaultBlog.Blog_id)
                 if(data && data.associatedPosts) {
