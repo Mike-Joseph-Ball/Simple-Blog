@@ -28,6 +28,7 @@ const Post_Editor = () => {
 
     const [loadedProperly,setLoadedProperly] = useState<null|boolean>(null)
     const [postContents,setPostContents] = useState<null|OutputData>(null)
+    const [postTitle,setPostTitle] = useState<null|string>(null)
     const [postId, setPostId] = useState<null|string>(null)
     const {isValid,user} = useCurrentFirebaseUserVerify();
 
@@ -68,8 +69,12 @@ const Post_Editor = () => {
                     setPostId(createdPost.res.insertId)
                     setLoadedProperly(true)
                     const postData = await Fetch_Post_Given_Post_Id_Middleware(tokenId,createdPost.res.insertId)
+                    const post_content = postData.res[0].Post_content
+                    const post_title = postData.res[0].Post_title
+                    console.log('post title:',post_title)
+                    setPostTitle(post_title)
                     console.log(postData)
-                    setPostContents(postData.res[0])
+                    setPostContents(post_content)
                     setLoadedProperly(true)
                     const url = new URL(window.location.href)
                     url.searchParams.set('post_id',createdPost.res.insertId.toString())
@@ -78,13 +83,14 @@ const Post_Editor = () => {
                     //obtain post details given post id
                     console.log("post id found in url")
                     const postData = await Fetch_Post_Given_Post_Id_Middleware(tokenId,postIdParam)
+                    const post_content = postData.res[0].Post_content
                     console.log(postData)
                     setPostId(postIdParam)
-                    setPostContents(postData.res[0])
+                    setPostContents(post_content)
                     setLoadedProperly(true)
-                    const url = new URL(window.location.href)
-                    url.searchParams.set('post_id',postIdParam)
-                    window.history.pushState({},'',url)
+                    const post_title = postData.res[0].Post_title
+                    console.log('post title:',post_title)
+                    setPostTitle(post_title)
                 }
 
 
@@ -108,9 +114,9 @@ const Post_Editor = () => {
     //console.log('postContents:',postContents)
     if(!blogId) {
         return('blog not specified in URL param')
-    } else if(loadedProperly && postId && postContents) {
+    } else if(loadedProperly && postId && postContents && postTitle) {
         return (<div>
-            <Rich_Text_Editor Post_content={postContents} postId={postId}/>
+            <Rich_Text_Editor postTitle={postTitle} postContents={postContents} postId={postId}/>
         </div>);
     }
 

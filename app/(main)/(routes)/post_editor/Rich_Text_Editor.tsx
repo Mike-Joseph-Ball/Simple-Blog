@@ -38,27 +38,30 @@ interface post {
 }
 
 type RichTextEditorProps = {
-  Post_content: OutputData;
+  postTitle: string;
+  postContents: OutputData;
   postId: string;
 }
 
-const Rich_Text_Editor: React.FC<RichTextEditorProps> = ({Post_content,postId}) => {
+const Rich_Text_Editor: React.FC<RichTextEditorProps> = ({postContents,postId,postTitle}) => {
   const editorRef = useRef<EditorJS | null>(null); 
   const initEditorCalled = useRef(false); // To prevent double initialization
   const [userToken,setUserToken] = useState<string|null>(null)
   const [pageLoaded,setPageLoaded] = useState<boolean|null>(null)
 
 
-  const [savedPostContent, setSavedPostContent] = useState<OutputData | undefined>(undefined);
+  //const [savedPostContent, setSavedPostContent] = useState<OutputData | undefined>(undefined);
   const [user] = useLocalUserAuth();
   
   // Initialize EditorJS
+  //userToken is needed for uploading images. 
   const initEditor = (userToken:string) => {
-    console.log('Editor Being Initialized...')
     if(initEditorCalled.current){
       console.log("initEditor was attempted to be called but it was already initialized")
       return
     }
+    console.log('initEditor Being Initialized for the 1st time...')
+    console.log('Saved Post Contents Right Before Editor Initialization:',postContents)
     editorRef.current = new EditorJS({
       holder: 'editorjs',
       tools: { 
@@ -140,7 +143,7 @@ const Rich_Text_Editor: React.FC<RichTextEditorProps> = ({Post_content,postId}) 
       },
       onReady: () => console.log("Editor is ready"),
       onChange: () => console.log("Content changed"),
-      data: savedPostContent
+      data: postContents
     });
   };
 
@@ -156,18 +159,7 @@ const Rich_Text_Editor: React.FC<RichTextEditorProps> = ({Post_content,postId}) 
             return
           }
           console.log('initializing editor...')
-          if(!user) {
-            throw new Error('user not defined when trying to initialize editor')
-          }
           const idToken = await user.getIdToken();
-          if(postId) {
-            const postData = await Fetch_Post_Given_Post_Id_Middleware(idToken,postId)
-            if(postData.res) {
-              const post_content = postData.res[0].Post_content
-              setSavedPostContent(post_content)
-              console.log("Post Saved Data:",post_content)
-            }
-          }
           setUserToken(idToken)
           initEditor(idToken);
           initEditorCalled.current = true;
@@ -204,7 +196,9 @@ const Rich_Text_Editor: React.FC<RichTextEditorProps> = ({Post_content,postId}) 
         const savedData = await editorRef.current.save();
         const savedDataString = JSON.stringify(savedData)
         console.log("Saved Data String:",savedDataString)
-        const updatePostResponse = await Update_Post_Middleware(userToken,postId,'Test title',savedDataString)
+        const title = document.getElementById('title') as HTMLInputElement;
+        console.log('title:',title)
+        const updatePostResponse = await Update_Post_Middleware(userToken,postId,title.value,savedDataString)
         if(updatePostResponse.success === false) {
           throw new Error('Update Post Failed',updatePostResponse)
         }
@@ -239,18 +233,19 @@ const Rich_Text_Editor: React.FC<RichTextEditorProps> = ({Post_content,postId}) 
     //switches the published BIT on the post
   }
 
-
   if(!user) {
     return(<div>user session is missing</div>)
   } else {
     return (
       <div className="p-4">
+        {pageLoaded && <input type="text" id='title' className="bg-transparent text-center block mx-auto p-2" defaultValue={postTitle}/> }
         <div id="editorjs" className="min-h-[300px] text-left border p-4 mb-4"></div>
+        { pageLoaded &&
         <div className='flex flex-row justify-between'>
           <button onClick={savePostToJSON}>Save Post</button>
           <button onClick={publishPost}>Publish Post</button>
         </div>
-
+        }
       </div>
     );
   }
