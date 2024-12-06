@@ -62,7 +62,10 @@ const Rich_Text_Editor: React.FC<RichTextEditorProps> = ({postContents,postId,po
     }
     console.log('initEditor Being Initialized for the 1st time...')
     console.log('Saved Post Contents Right Before Editor Initialization:',postContents)
-    const postContentsObj = JSON.parse(postContents)
+    let postContentsObj:OutputData;
+    if(postContents) {
+      postContentsObj = JSON.parse(postContents)
+    }
     //console.log('type of postContents:',typeof(postContents))
     editorRef.current = new EditorJS({
       holder: 'editorjs',
@@ -84,8 +87,8 @@ const Rich_Text_Editor: React.FC<RichTextEditorProps> = ({postContents,postId,po
                 //format. There has to be a server answer. Only argument that will be passed to this endpoint
                 //is a File. This likely means this uploadFile URL will have to be client middleware because the request
                 //needs more information like user state info
-                byFile: `${process.env.NEXT_PUBLIC_ABSOLUTE_URL}/api/db/put/Create_Image`, // Your backend file uploader endpoint
-                byUrl: `${process.env.NEXT_PUBLIC_ABSOLUTE_URL}/api/db/put/Fetch_URL`, // Your endpoint that provides uploading by Url
+                byFile: `${process.env.NEXT_PUBLIC_ABSOLUTE_URL}/api/db/put/Create_Image`, // backend file uploader endpoint
+                byUrl: `${process.env.NEXT_PUBLIC_ABSOLUTE_URL}/api/db/put/Fetch_URL`, // endpoint that provides uploading by Url
                 },
                 uploader: {
                     //Editorjs internally calls uploadByFile
@@ -151,7 +154,7 @@ const Rich_Text_Editor: React.FC<RichTextEditorProps> = ({postContents,postId,po
       },
       onReady: () => console.log("Editor is ready"),
       onChange: () => console.log("Content changed"),
-      data: postContentsObj
+      data: postContentsObj ? postContentsObj : {} // Default to an empty object if postContentsObj is undefined
     });
   };
 
