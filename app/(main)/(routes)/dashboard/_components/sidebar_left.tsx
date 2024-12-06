@@ -22,7 +22,7 @@ const Sidebar_Left: React.FC<ChildComponentProps> = ({blogInfoArray = [],default
 
             <Link href={{
                     pathname: '/post_editor', // Destination page
-                    query: { blog_id: defaultBlog?.defaultBlog.Blog_id }, // Query parameters
+                    query: { blogId: defaultBlog?.defaultBlog.Blog_id }, // Query parameters
                 }}>
                 <Button variant="ghost" size="sm">
                     Make New Post

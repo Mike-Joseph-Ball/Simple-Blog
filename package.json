@@ -12,7 +12,7 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.687.0",
     "@canburaks/text-align-editorjs": "^1.1.0",
-    "@editorjs/editorjs": "^2.30.6",
+    "@editorjs/editorjs": "^2.30.7",
     "@editorjs/header": "^2.8.8",
     "@editorjs/image": "^2.10.0",
     "@editorjs/link": "^2.6.2",

@@ -10,9 +10,12 @@ import { useEffect } from 'react';
 import { useState } from 'react';
 import Create_Post_Middleware from '@/lib/mySQL/client_side/PUT/Create_Post_Middleware';
 import { OutputData } from '@editorjs/editorjs';
+import BackToDashboardButton from '@/app/(main)/(routes)/post_editor/_components/back_to_dashboard_button';
+
+
 //import { ZodNullable } from 'zod';
 // Import dynamically with `ssr: false`
-const Rich_Text_Editor = dynamic(() => import('./Rich_Text_Editor'), { ssr: false });
+const Rich_Text_Editor = dynamic(() => import('@/app/(main)/(routes)/post_editor/_components/Rich_Text_Editor'), { ssr: false });
 
 interface post {
     Post_id: number;
@@ -27,15 +30,15 @@ interface post {
 const Post_Editor = () => {
 
     const [loadedProperly,setLoadedProperly] = useState<null|boolean>(null)
-    const [postContents,setPostContents] = useState<null|OutputData>(null)
+    const [postContents,setPostContents] = useState<null|string>(null)
     const [postTitle,setPostTitle] = useState<null|string>(null)
     const [postId, setPostId] = useState<null|string>(null)
     const {isValid,user} = useCurrentFirebaseUserVerify();
 
     //check if there is a postId in the URL. If there is, set the post id. 
     const searchParams = useSearchParams()
-    const postIdParam = searchParams?.get('post_id');
-    const blogId = searchParams?.get('blog_id');
+    const postIdParam = searchParams?.get('postId');
+    const blogId = searchParams?.get('blogId');
 
     //perform async functions to get user session and create post if not passed
     useEffect(() => {
@@ -69,23 +72,26 @@ const Post_Editor = () => {
                     setPostId(createdPost.res.insertId)
                     setLoadedProperly(true)
                     const postData = await Fetch_Post_Given_Post_Id_Middleware(tokenId,createdPost.res.insertId)
+                    console.log("postData.res:",postData.res[0])
                     const post_content = postData.res[0].Post_content
                     const post_title = postData.res[0].Post_title
                     console.log('post title:',post_title)
                     setPostTitle(post_title)
-                    console.log(postData)
+                    console.log('post content:',post_content)
                     setPostContents(post_content)
                     setLoadedProperly(true)
                     const url = new URL(window.location.href)
-                    url.searchParams.set('post_id',createdPost.res.insertId.toString())
+                    url.searchParams.set('postId',createdPost.res.insertId.toString())
                     window.history.pushState({},'',url)
                 } else if(postIdParam) {
                     //obtain post details given post id
                     console.log("post id found in url")
                     const postData = await Fetch_Post_Given_Post_Id_Middleware(tokenId,postIdParam)
+                    console.log("postData.res:",postData.res[0])
                     const post_content = postData.res[0].Post_content
                     console.log(postData)
                     setPostId(postIdParam)
+                    console.log('post content:',post_content)
                     setPostContents(post_content)
                     setLoadedProperly(true)
                     const post_title = postData.res[0].Post_title
@@ -112,10 +118,14 @@ const Post_Editor = () => {
     //console.log('loadedProperly:',loadedProperly)
     //console.log('postId:',postId)
     //console.log('postContents:',postContents)
-    if(!blogId) {
+    //console.log('postTitle:',postTitle)
+    console.log('blogId:',blogId)
+
+    if(!blogId || blogId === null || blogId ==='null') {
         return('blog not specified in URL param')
-    } else if(loadedProperly && postId && postContents && postTitle) {
+    } else if(loadedProperly && postId && postContents !== null && postTitle) {
         return (<div>
+            <BackToDashboardButton blogId={blogId}/>
             <Rich_Text_Editor postTitle={postTitle} postContents={postContents} postId={postId}/>
         </div>);
     }

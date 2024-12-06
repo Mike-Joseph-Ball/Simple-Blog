@@ -2,7 +2,7 @@
 import Sidebar_Left from '@/app/(main)/(routes)/dashboard/_components/sidebar_left'
 import PostContent from '@/app/(main)/(routes)/dashboard/_components/post_content'
 import { useSearchParams } from 'next/navigation'
-import { getDefaultBlogFromLocalStorage,setDefaultBlogInLocalStorage } from '@/lib/utils'
+import { getDefaultBlogFromLocalStorage,setDefaultBlogInLocalStorage,convertEditorjsDataToHumanReadable } from '@/lib/utils'
 import useLocalUserAuth from '@/lib/_firebase/local_authentication/return_local_authentication';
 import { getIdToken } from 'firebase/auth'
 import { useEffect, useRef } from 'react'
@@ -37,10 +37,21 @@ const Dashboard = () => {
     const [errorArray,setError] = useState<any[]>([]) 
     //const [user, setUser] = useState<User | null>(null); // Type user state with Firebase User
     const [user,isPending] = useLocalUserAuth();
-    const [defaultBlogId,setDefaultBlogId] = useState<Number | null>(null)
+    const [defaultBlogId,setDefaultBlogId] = useState<string | null>(null)
 
     const searchParams = useSearchParams()
-    let blog_id = searchParams?.get('blog_id')
+    let blog_id = searchParams?.get('blogId')
+
+    interface Blog {
+        Blog_id: number;
+        blog_title: string;
+        blog_description: string;
+        comment_settings_default: string;
+        blog_template_style: string,
+        user_email: string,
+        created_at: string
+    }
+      
     
     //First, attempt to get the current blog that is stored in the browser
     //...
@@ -67,13 +78,14 @@ const Dashboard = () => {
                     if(user.email) {
                         localBlogDetails = getDefaultBlogFromLocalStorage(user.email);
                         if(localBlogDetails) {
+                            console.log('local blog details:',localBlogDetails)
                             localBlogDetails = JSON.parse(localBlogDetails)
                         }
                     }
         
                     /* BEGIN GETTING MOST USED BLOG & POST COUNT */
                     if(defaultBlog){
-                        console.log("blog is already saved in state variable. We just have to query to get the posts.")
+                        console.log("blog is already saved in state variable.")
                     }else if(blog_id && user.email) {
                         //If you got the blog id from the URL, you need to first get the blog details. 
                         //Then you can go right to getting blog details
@@ -84,12 +96,13 @@ const Dashboard = () => {
                         console.log("blog found in the URL. Successfully Queried for this blog's immediate details: ",data)
                         const mostUsedBlog = data.blogDetails[0]
                         setDefaultBlog({post_count:data.post_count,defaultBlog:mostUsedBlog})
-                        setDefaultBlogId(data.blogDetails[0].Blog_id)
+                        setDefaultBlogId(data.blogDetails[0].Blog_id.toString())
                     } else if (user.email && localBlogDetails) {
                         console.log("blog found in local storage:",localBlogDetails)
                         //If you can get the Default blog from local storage, use that and go right to getting blog details
 
                         setDefaultBlog(localBlogDetails)
+                        setDefaultBlogId(localBlogDetails.defaultBlog.Blog_id)
                         console.log('Default Blog Id:',defaultBlog)
                     } else if(user && user.email) {
                         console.log("Default blog must be acquired from mySQL")
@@ -113,7 +126,9 @@ const Dashboard = () => {
                             console.log('most used blog id:',mostUsedBlog.Blog_id)
                             if(data && mostUsedBlog && post_count) {
                                 setDefaultBlog(blogDetails)
-                                //setDefaultBlogInLocalStorage(user.email,data.most_used_blog)
+                                setDefaultBlogId(mostUsedBlog.Blog_id)
+                                const BlogDetails = {defaultBlog:mostUsedBlog as Blog,post_count:post_count}
+                                setDefaultBlogInLocalStorage(user.email,BlogDetails)
                                 console.log("successfully added blog to local storage")
                             } else {
                                 console.log()
@@ -149,7 +164,7 @@ const Dashboard = () => {
                     return
                 }
                 const userToken = await getIdToken(user)
-                console.log('user token:',userToken)
+                //console.log('user token:',userToken)
                 const Blog_info_array  = await Query_Blogs_Associated_With_User(userToken)
                 setUsersBlogs(Blog_info_array.res)
                 console.log("Blog Id Array",Blog_info_array.res)
@@ -209,7 +224,7 @@ const Dashboard = () => {
     },[defaultBlog])
 
     
-
+    console.log('defaultBlogId:',defaultBlogId)
     if(!user&&!isPending) {
         return(<div>No user object stored in browser. Log in or Sign up...</div>)
     }
@@ -237,7 +252,7 @@ const Dashboard = () => {
                     <Sidebar_Left blogInfoArray={usersBlogs} defaultBlog={defaultBlog}/>
                 </div>
                 <div className='w-full'>
-                    <PostContent postData={associatedPosts}/>
+                    <PostContent postData={associatedPosts} blogId={defaultBlogId}/>
                 </div>
             </div>
          );

@@ -1,16 +1,20 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
+import { convertEditorjsDataToHumanReadable } from '@/lib/utils'
+import { OutputData } from '@editorjs/editorjs';
+
 type ChildComponentProps = {
     postData: Array<any>;
+    blogId: string|null;
 };
 
-const PostContent: React.FC<ChildComponentProps> = ({postData = []}) => {    
+const PostContent: React.FC<ChildComponentProps> = ({postData = [],blogId=null}) => {    
 
     const router = useRouter()
 
     const handleClick = (postId:Number) => {
-        router.push(`/post_editor?postId=${postId}`)
+        router.push(`/post_editor?postId=${postId}&blogId=${blogId}`)
     }
 
     return ( <div className=" flex flex-col p-6 w-full h-full justify-start items-center bg-red-500 ml-auto">
@@ -19,8 +23,8 @@ const PostContent: React.FC<ChildComponentProps> = ({postData = []}) => {
        {postData && postData.map((post,index) => (
         <a key={index} onClick={() => handleClick(post.Post_id)}>
             <div className="bg-slate-500">
-                <h1>{post.Post_title}</h1>
-                <p>{post.Post_content}</p>
+                <h3>{post.Post_title}</h3>
+                {post.Post_content && <p>{convertEditorjsDataToHumanReadable(post.Post_content as OutputData)}</p>} 
             </div>
         </a>
        ))}

@@ -15,19 +15,25 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Simple Blog!!",
+  title: "Simple Blog",
   description: "Simple Blog is a very simple blogging platform",
   icons: {
     icon: [
+      /*
       {
         media: "(prefers-color-scheme: light)",
-        url: "app/images/Light-Mode-Logo.svg",
-        href: "app/images/Light-Mode-Logo.svg"
+        url: "/logos/Light-Mode-Logo.svg",
+        href: "/logos/Light-Mode-Logo.svg"
       },
       {
         media: "(prefers-color-scheme: dark)",
-        url: "app/images/Dark-Mode-Logo.svg",
-        href: "app/images/Dark-Mode-Logo.svg"
+        url: "/logos/Dark-Mode-Logo.svg",
+        href: "/logos/Dark-Mode-Logo.svg"
+      }
+        */
+      {
+      url: "/logos/Light-Mode-Logo.svg",
+      href: "/logos/Light-Mode-Logo.svg"
       }
     ]
   }
