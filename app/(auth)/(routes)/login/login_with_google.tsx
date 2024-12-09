@@ -1,4 +1,4 @@
-import { getAuth, signInWithPopup, GoogleAuthProvider, User, setPersistence, browserSessionPersistence } from 'firebase/auth';
+import { getAuth, signInWithPopup, GoogleAuthProvider, User, setPersistence, browserSessionPersistence, updateProfile } from 'firebase/auth';
 import { useState } from 'react';
 import isUserInMySQLDB from '@/app/(auth)/(routes)/login/isUserInMySQLDB';
 
@@ -27,6 +27,11 @@ const GoogleSignInButton = () => {
             const result = await signInWithPopup(auth, provider)
             setError(null)
             setUser(result.user);
+
+            await updateProfile(result.user, {
+                displayName: result.user.displayName,
+            });
+
         } catch(error) {
             const errorMessage = error instanceof Error ? error.message || JSON.stringify(error) : "An unexpected error occured";
             setError(errorMessage);

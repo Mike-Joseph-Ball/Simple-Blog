@@ -1,9 +1,10 @@
 import { useState} from 'react';
 import {auth} from '@/lib/_firebase/config'
 import { useRouter } from 'next/navigation'
-import { signInWithEmailAndPassword, setPersistence, browserSessionPersistence } from "firebase/auth";
+import { signInWithEmailAndPassword, setPersistence, browserSessionPersistence,updateProfile } from "firebase/auth";
 const EmailSignIn = () => {
 
+    const [username, setUsername] = useState<string>('')
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('')
     const router = useRouter();
@@ -29,8 +30,13 @@ const EmailSignIn = () => {
 
 
             signInWithEmailAndPassword(auth, email, password)
-            .then(() => {
+            .then((result) => {
                 // Signed in 
+                
+                updateProfile(result.user, {
+                    displayName: username,
+                });
+
                 return router.push('/')
                 // ...
             })
@@ -46,8 +52,16 @@ const EmailSignIn = () => {
     
     return ( <div> 
         <h1>Sign into Your Account</h1>
+
         <p>Username</p>
-    
+        <input
+        type="username"
+        placeholder="username"
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
+        />
+
+        <p>Email</p>
         <input
         type="email"
         placeholder="Email"

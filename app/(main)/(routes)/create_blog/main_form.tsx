@@ -72,7 +72,7 @@ const Main_Form = () => {
             } else {
               throw new Error('comment settings are different than expected. cannot create blog')
             }
-            const blog_add_response = await Add_Blog_To_MySQL_DB(idToken,values.blog_title,comment_settings,values.blog_template_style)
+            const blog_add_response = await Add_Blog_To_MySQL_DB(idToken,values.blog_title,comment_settings,values.blog_template_style,values.blog_description)
             //The client middleware returns an error  if it runs into any problems
             if(blog_add_response.success === null) {
               throw new Error('The client middleware "Add_Blog_To_MySQL_DB" encountered a critical error')
@@ -81,7 +81,7 @@ const Main_Form = () => {
               console.log("Blog Add Response:",blog_add_response)
               //This is where we route to the dashboard
               const query = new URLSearchParams({
-                blog_id: blog_add_response.res.insertId
+                blogId: blog_add_response.res.insertId
                 //comment_settings_default: values.comment_settings_default,
               }).toString()
       

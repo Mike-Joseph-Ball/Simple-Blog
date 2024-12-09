@@ -1,11 +1,12 @@
 import { createConnection } from '@/lib/db'
 import { NextApiRequest, NextApiResponse } from "next";
 import verify_id_token_helper from '@/lib/_firebase/server_authentication/Verify_Firebase_Auth_Helper'
-import Does_User_Own_Post from '@/lib/mySQL/client_side/GET/Does_User_Own_Post'
+import Does_User_Own_Post_Middleware from '@/lib/mySQL/client_side/GET/Does_User_Own_Post_Middleware'
 import formidable from 'formidable';
 import Add_Image_To_S3_Bucket from '@/lib/AWS/Add_Image_To_S3_Bucket'
 import fs from 'fs';
 import { ResultSetHeader } from 'mysql2';
+import  doesUserOwnPost  from '@/lib/mySQL/server_side/doesUserOwnPost'
 
 //Turning off the nextjs bodyParser allowed for the formidable parser to work in this module.
 //Before this config statement, the form parser was stuck in an infinity loop.
@@ -59,19 +60,19 @@ const Create_Image = async (req: NextApiRequest, res : NextApiResponse) => {
             return res.status(403).json({success:false,message:'forbidden'})
         }
         const decodedToken = await verify_id_token_helper(userToken);
-        console.log("user token: ",userToken)
-        console.log("Decoded Token Post Authentication: ",decodedToken)
+        //console.log("user token: ",userToken)
+        //console.log("Decoded Token Post Authentication: ",decodedToken)
         // Check if the user owns the post
         if(!postId){
             return res.status(400).json({success:false,message:"malformed: missing or malformed postId"})
         }
 
-        const doesUserOwnPost = await Does_User_Own_Post(decodedToken.email, postId);
+        const userOwnPost = await doesUserOwnPost(decodedToken.email, postId.toString());
         
-        if (!doesUserOwnPost.success) {
+        if (!userOwnPost) {
             console.log("The user does not own the post");
             throw new Error('The user does not own the post');
-    }
+        }
 
         /* add the user to the mySQL DB */
         const db = await createConnection();

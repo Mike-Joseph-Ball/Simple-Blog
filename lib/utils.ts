@@ -80,4 +80,42 @@ const convertEditorjsDataToHumanReadable = (editorJsData:string) => {
 
 }
 
-export { getDefaultBlogFromLocalStorage, setDefaultBlogInLocalStorage, convertEditorjsDataToHumanReadable}
+const convert8061TimeToHumanReadable = (dateString:string) => {
+  const date = new Date(dateString);
+
+  //Intl is a built in global JS object that provides internationalization utilities.
+  //format numbers, dates, currencies, etc
+
+  // Get user's timezone
+  const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+  const options: Intl.DateTimeFormatOptions = {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+      hour12: true,
+      timeZone: userTimeZone, // Use user's timezone here
+  };
+
+  // Format date
+  const formattedDate = new Intl.DateTimeFormat('en-US', options).format(date);
+
+  // Add ordinal suffix to the day
+  const day:string = date.getDate().toString(); // Use local day (based on the user's timezone)
+  const ordinalSuffix = (n:any) =>
+      ['th', 'st', 'nd', 'rd'][
+          (n % 100 > 10 && n % 100 < 14) || n % 10 > 3 ? 0 : n % 10
+      ];
+  const dayWithSuffix = `${day}${ordinalSuffix(day)}`;
+
+  // Replace the day in the formatted string
+  const finalString = formattedDate.replace(day, dayWithSuffix);
+
+  return finalString
+  // Output (based on user timezone): "December 9th, 2024, 7:53 PM"
+
+}
+
+export { getDefaultBlogFromLocalStorage, setDefaultBlogInLocalStorage, convertEditorjsDataToHumanReadable,convert8061TimeToHumanReadable}

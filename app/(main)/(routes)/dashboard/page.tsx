@@ -11,7 +11,9 @@ import Query_Most_Used_Blog from '@/lib/mySQL/client_side/GET/Query_Most_Used_Bl
 import Fetch_Blog_Posts_Middleware from '@/lib/mySQL/client_side/GET/Fetch_Blog_Posts_Middleware'
 import Query_Blogs_Associated_With_User from '@/lib/mySQL/client_side/GET/Query_Blogs_Associated_With_User'
 import Query_Blog_Given_Id_Middlware from '@/lib/mySQL/client_side/GET/Query_Blog_Given_Id_Middleware'
-
+import BlogDetails from './_components/blog_details'
+import Does_User_Own_Blog_Middleware from '@/lib/mySQL/client_side/GET/Does_User_Own_Blog_Middleware'
+import { useRouter } from 'next/navigation';
 
 interface Blog {
     Blog_id: number;
@@ -38,6 +40,9 @@ const Dashboard = () => {
     //const [user, setUser] = useState<User | null>(null); // Type user state with Firebase User
     const [user,isPending] = useLocalUserAuth();
     const [defaultBlogId,setDefaultBlogId] = useState<string | null>(null)
+    const [ownBlog,setOwnBlog] = useState<boolean|null>(null)
+    
+    const router = useRouter();
 
     const searchParams = useSearchParams()
     let blog_id = searchParams?.get('blogId')
@@ -51,7 +56,11 @@ const Dashboard = () => {
         user_email: string,
         created_at: string
     }
-      
+    
+
+    //The first thing we will do is check if the user trying to view the dashboard is legitimate.
+
+    //Then we will check if the current user owns the blog post.
     
     //First, attempt to get the current blog that is stored in the browser
     //...
@@ -113,7 +122,9 @@ const Dashboard = () => {
 
                             if(data.message === 'user has no blogs') {
                                 console.log('user has no blogs!')
-                                setBlogLoaded(true)
+                                //route to create_blog page
+                                router.push('/create_blog');
+                                //setBlogLoaded(true)
                                 return
                             } else if (data.message === 'blogs do not have any posts') {
                                 console.log('default blog has no posts')
@@ -177,9 +188,6 @@ const Dashboard = () => {
         getUsersAssociatedBlogs()
     },[user])
 
-    //Retrieve all blogs associated with user
-    //useEffect()
-
     //retrieves posts associated with blog
     useEffect(() => {
         async function getPostsAssociatedWithBlog() {
@@ -190,6 +198,9 @@ const Dashboard = () => {
                 console.log('Default Blog Could not be found. could be that the first useEffect has not finished yet.')
                 return
                 //throw new Error('Default Blog Could not be found')
+            } else if(blogLoaded) {
+                console.log('blog has already been loaded before associated posts could be grabbed. Probably because user has no blogs')
+                return
             }
             try {
     
@@ -218,9 +229,35 @@ const Dashboard = () => {
             } finally {
                 setBlogLoaded(true)
             }
-
         }
         getPostsAssociatedWithBlog()
+    },[defaultBlog])
+
+    //we need to check if the user owns the blog. We can pass this boolean to the sidebar.
+    useEffect(() => {
+        async function DoesUserOwnBlogId () {
+            if(!user || !user.email){
+                return
+            } else if(!defaultBlog) {
+                //console.log('Default Blog Could not be found. could be that the first useEffect has not finished yet.')
+                return
+                //throw new Error('Default Blog Could not be found')
+            } 
+            try {
+                const userToken = await user.getIdToken()
+                const doesUserOwnBlog = await Does_User_Own_Blog_Middleware(userToken,defaultBlog.defaultBlog.Blog_id.toString())
+                console.log('Does the user own the blog? ',doesUserOwnBlog)
+                if(doesUserOwnBlog.ownBlog) {
+                    setDefaultBlogInLocalStorage(user.email,defaultBlog)
+                }
+                setOwnBlog(doesUserOwnBlog.ownBlog)
+            } catch(error) {
+                setError((prevError) => [...prevError, 'unable to figure out if user owns the current blog']);
+            }
+
+        }
+        DoesUserOwnBlogId()
+
     },[defaultBlog])
 
     
@@ -232,7 +269,7 @@ const Dashboard = () => {
         return(<div>Validating session and retrieving blog details...</div>)
     }
 
-    if(!blogLoaded) {
+    if(blogLoaded === false) {
         return(
             <div>
                 <h1>Error occured when trying to retrieve dashboard details:</h1>
@@ -243,16 +280,17 @@ const Dashboard = () => {
         )
     }
 
-    if(blogLoaded){
+    if(blogLoaded && ownBlog !== null){
         //If this returns, it means all the blog info and posts have been loaded.
         //We can pass state variables to components
         return ( 
             <div className=" h-full flex flex-row">
                 <div>
-                    <Sidebar_Left blogInfoArray={usersBlogs} defaultBlog={defaultBlog}/>
+                    <Sidebar_Left blogInfoArray={usersBlogs} defaultBlog={defaultBlog} doesUserOwnBlog={ownBlog}/>
                 </div>
-                <div className='w-full'>
-                    <PostContent postData={associatedPosts} blogId={defaultBlogId}/>
+                <div className='w-full flex flex-col'>
+                    <BlogDetails blogTitle={defaultBlog?.defaultBlog.blog_title} blogDescription={defaultBlog?.defaultBlog.blog_description}/>
+                    <PostContent postData={associatedPosts} blogId={defaultBlogId} doesUserOwnBlog={ownBlog}/>
                 </div>
             </div>
          );

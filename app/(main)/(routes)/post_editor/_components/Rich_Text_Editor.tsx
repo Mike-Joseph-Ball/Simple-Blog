@@ -6,9 +6,7 @@ import Header from '@editorjs/header';
 import List from '@editorjs/list'; 
 import ImageTool from '@editorjs/image';
 import useLocalUserAuth from '@/lib/_firebase/local_authentication/return_local_authentication';
-import { useSearchParams } from 'next/navigation'
 import Update_Post_Middleware from '@/lib/mySQL/client_side/PUT/Update_Post_Middleware';
-import Fetch_Post_Given_Post_Id_Middleware from '@/lib/mySQL/client_side/GET/Fetch_Post_Given_Post_Id_Middleware';
 import Toggle_Post_Visibility_Middleware from '@/lib/mySQL/client_side/PUT/Toggle_Post_Visibility_Middleware';
 import { OutputData } from '@editorjs/editorjs';
 //import { SuccessAlert } from '@/app/(main)/(routes)/post_editor/_components/alerts'
@@ -62,9 +60,9 @@ const Rich_Text_Editor: React.FC<RichTextEditorProps> = ({postContents,postId,po
     }
     console.log('initEditor Being Initialized for the 1st time...')
     console.log('Saved Post Contents Right Before Editor Initialization:',postContents)
-    let postContentsObj:OutputData;
-    if(postContents) {
-      postContentsObj = JSON.parse(postContents)
+    let postContentsObj: OutputData | undefined = undefined;
+    if (postContents) {
+      postContentsObj = JSON.parse(postContents);
     }
     //console.log('type of postContents:',typeof(postContents))
     editorRef.current = new EditorJS({
@@ -154,7 +152,7 @@ const Rich_Text_Editor: React.FC<RichTextEditorProps> = ({postContents,postId,po
       },
       onReady: () => console.log("Editor is ready"),
       onChange: () => console.log("Content changed"),
-      data: postContentsObj ? postContentsObj : {} // Default to an empty object if postContentsObj is undefined
+      data: postContentsObj
     });
   };
 
@@ -253,7 +251,7 @@ const Rich_Text_Editor: React.FC<RichTextEditorProps> = ({postContents,postId,po
         <div>
         <input type="text" id='title' className="bg-transparent text-center block mx-auto p-2" defaultValue={postTitle}/> 
         </div>}
-        <div id="editorjs" className="min-h-[300px] text-left border p-4 mb-4"></div>
+        <div id="editorjs" className="min-h-[300px] text-left border p-4 mb-4 overflow-hidden"></div>
         { pageLoaded &&
         <div className='flex flex-row justify-between'>
           <button onClick={savePostToJSON}>Save Post</button>

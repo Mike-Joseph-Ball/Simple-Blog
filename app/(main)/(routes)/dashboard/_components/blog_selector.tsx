@@ -25,7 +25,7 @@ const Blog_Selector: React.FC<ChildComponentProps>  = ({blogInfoArray = [], defa
                 
                 <DropdownMenuSeparator />
                 {blogInfoArray && blogInfoArray.map((blog) => (
-                    defaultBlog && defaultBlog.defaultBlog.blog_title !== blog.blog_title && <DropdownMenuItem key={blog.blog_id}><a href={'/dashboard?blogId=' + blog.Blog_id}>{blog.blog_title}</a></DropdownMenuItem>
+                    defaultBlog && defaultBlog.defaultBlog.blog_title !== blog.blog_title && <DropdownMenuItem key={blog.Blog_id}><a href={'/dashboard?blogId=' + blog.Blog_id}>{blog.blog_title}</a></DropdownMenuItem>
                 ))}
             </DropdownMenuContent>
         </DropdownMenu>

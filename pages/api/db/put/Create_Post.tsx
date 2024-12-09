@@ -11,7 +11,7 @@ const createPost = async(req: NextApiRequest,res:NextApiResponse) => {
     if(decodedToken) {
         try {
             const db = await createConnection()
-            const sql = 'INSERT Into Posts (Post_title,Post_content,User_email,Blog_id) VALUES (?, ?, ?, ?)'
+            const sql = 'INSERT INTO Posts (Post_title,Post_content,User_email,Blog_id) VALUES (?, ?, ?, ?)'
             const [response] = await db.query(sql, ['untitled','',user_email,blogId])
             return res.status(200).json({success:true,res:response})
         } catch(error) {

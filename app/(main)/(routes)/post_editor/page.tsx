@@ -11,8 +11,8 @@ import { useState } from 'react';
 import Create_Post_Middleware from '@/lib/mySQL/client_side/PUT/Create_Post_Middleware';
 import { OutputData } from '@editorjs/editorjs';
 import BackToDashboardButton from '@/app/(main)/(routes)/post_editor/_components/back_to_dashboard_button';
-
-
+import  Does_User_Own_Post_Middleware from '@/lib/mySQL/client_side/GET/Does_User_Own_Post_Middleware'
+import Comment_Section from './_components/Comment_Section';
 //import { ZodNullable } from 'zod';
 // Import dynamically with `ssr: false`
 const Rich_Text_Editor = dynamic(() => import('@/app/(main)/(routes)/post_editor/_components/Rich_Text_Editor'), { ssr: false });
@@ -97,6 +97,11 @@ const Post_Editor = () => {
                     const post_title = postData.res[0].Post_title
                     console.log('post title:',post_title)
                     setPostTitle(post_title)
+
+                    //check if the post belongs to the user. If it does not, set state variable that will be passed
+                    //to the rich text editor to make sure the post is read-only
+
+
                 }
 
 
@@ -127,6 +132,7 @@ const Post_Editor = () => {
         return (<div>
             <BackToDashboardButton blogId={blogId}/>
             <Rich_Text_Editor postTitle={postTitle} postContents={postContents} postId={postId}/>
+            <Comment_Section user={user} postId={postId}/>
         </div>);
     }
 

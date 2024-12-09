@@ -1,12 +1,16 @@
 
+interface BlogDetailsProp {
+    blogTitle: string | undefined;
+    blogDescription: string | undefined;
+}
 
-const BlogDetails = () => {
+const BlogDetails: React.FC<BlogDetailsProp> = ({blogTitle,blogDescription}) => {
     return ( <div className="flex flex-col items-center">
         <div className="text-5xl">
-            Blog Title
+            {blogTitle}
             </div>
         <div>
-            Blog Description
+            {blogDescription}
         </div>
     </div> );
 }
