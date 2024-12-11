@@ -6,7 +6,7 @@ interface BlogDetailsProp {
 
 const BlogDetails: React.FC<BlogDetailsProp> = ({blogTitle,blogDescription}) => {
     return ( <div className="flex flex-col items-center">
-        <div className="text-5xl">
+        <div className="text-5xl padding-y-2">
             {blogTitle}
             </div>
         <div>

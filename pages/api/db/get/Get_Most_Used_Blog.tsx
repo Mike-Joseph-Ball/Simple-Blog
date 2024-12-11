@@ -2,8 +2,9 @@ import { createConnection } from '@/lib/db'
 import { NextApiRequest, NextApiResponse } from "next";
 //This allowed us to get the proper data type exported from mysql
 import { RowDataPacket } from 'mysql2';
+import { createPool } from '@/lib/db'
 import  getBlogDetailsGivenBlogId  from '@/lib/mySQL/server_side/get/blog_details_given_blog_id'
-import verify_id_token_helper from '@/lib/_firebase/server_authentication/Verify_Firebase_Auth_Helper'
+import verify_id_token_helper from '@/lib/_firebase/server/Verify_Firebase_Auth_Helper'
 
 const Get_Most_Used_Blog = async (req:NextApiRequest,res:NextApiResponse) => {
     const { tokenId, user_email } = req.body
@@ -14,9 +15,10 @@ const Get_Most_Used_Blog = async (req:NextApiRequest,res:NextApiResponse) => {
         return res.status(403).json({success:false,message:'forbidden'})
     }
 
+    const db = await createPool.getConnection();
+
     try {
         
-        const db = await createConnection()
         const sqlBlogIds = 'SELECT Blog_id FROM Blogs WHERE user_email = (?)'
         let [blogResponse] = await db.query<RowDataPacket[]>(sqlBlogIds, [user_email])
         const blogIds = blogResponse.map(row => row.Blog_id);
@@ -76,6 +78,8 @@ const Get_Most_Used_Blog = async (req:NextApiRequest,res:NextApiResponse) => {
         console.log('Get_Most_Used_Blog SQL request failed: ',error)
         const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
         return res.status(400).json({success: false,message:errorMessage,errno:error.errno})
+    } finally {
+        db.release()
     }
 }
  

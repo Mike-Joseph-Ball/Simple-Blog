@@ -1,8 +1,9 @@
 import { Button } from '@/components/ui/button'
-import Query_Blogs_Associated_With_User from "@/lib/mySQL/client_side/GET/Query_Blogs_Associated_With_User";
 import Link from 'next/link'
 import Blog_Selector from '@/app/(main)/(routes)/dashboard/_components/blog_selector'
 import { BlogDetails } from '@/app/(main)/(routes)/dashboard/page'
+import { handleSignOut } from './Handle_Sign_Out'
+import { useRouter } from 'next/navigation'
 
 type ChildComponentProps = {
     blogInfoArray: Array<any>;
@@ -11,49 +12,69 @@ type ChildComponentProps = {
 }
 
 const Sidebar_Left: React.FC<ChildComponentProps> = ({blogInfoArray = [],defaultBlog = null, doesUserOwnBlog}) => {
-    return ( 
-        <div className=" flex flex-col p-6 w-40 h-full justify-center items-center bg-slate-400">
-            
-            <Blog_Selector blogInfoArray={blogInfoArray} defaultBlog={defaultBlog}/>
+    
+    const router = useRouter()
+    function handleSignOutRoute() {
+        handleSignOut()
+        router.push('/')
+    }
 
-            <Link href={{
-                    pathname: '/post_editor', // Destination page
-                    query: { blogId: defaultBlog?.defaultBlog.Blog_id }, // Query parameters
-                }}>
-                </Link>
-            { doesUserOwnBlog && 
-
-                <div>
-                    <Link href='/create_blog'>
-                        <Button variant="ghost" size="lg">
-                            Make New Blog
-                        </Button>
-                    </Link>
-
-                    <Link href={{pathname:'/post_editor',query:{blogId:defaultBlog?.defaultBlog.Blog_id}}}>
-                        <Button variant="ghost" size="sm">
-                            Make New Post
-                        </Button>
-                    </Link>
-
-                    <Button variant="ghost" size="sm">
-                        Comment Dashboard
-                    </Button>
-
-                </div>
-            }
-
-            { !doesUserOwnBlog &&
-            <Button variant="ghost" size="sm">
-                Return to my Blog Dashboard
+    return (
+        <div className="flex flex-col p-4 w-60 min-h-screen bg-slate-800 text-white space-y-6">
+          {/* Blog Selector */}
+          <div className="w-full">
+            <Blog_Selector blogInfoArray={blogInfoArray} defaultBlog={defaultBlog} />
+          </div>
+      
+          {/* Action Buttons */}
+          {doesUserOwnBlog && (
+            <div className="flex flex-col w-full space-y-4">
+              <Link href="/create_blog">
+                <Button variant="ghost" size="lg" className="w-full bg-blue-500 hover:bg-blue-600 text-white rounded">
+                  Make New Blog
+                </Button>
+              </Link>
+      
+              <Link href={{ pathname: '/post_editor', query: { blogId: defaultBlog?.defaultBlog.Blog_id } }}>
+                <Button variant="ghost" size="lg" className="w-full bg-green-500 hover:bg-green-600 text-white rounded">
+                  Make New Post
+                </Button>
+              </Link>
+      
+              <Button variant="ghost" size="lg" className="w-full bg-purple-500 hover:bg-purple-600 text-white rounded">
+                Comment Dashboard
+              </Button>
+            </div>
+          )}
+      
+          {!doesUserOwnBlog && (
+            <Button variant="ghost" size="lg" className="w-full bg-red-500 hover:bg-red-600 text-white rounded">
+              Return to My Blog Dashboard
             </Button>
-            }
-
-            <Button variant="ghost" size="sm">
+          )}
+      
+          {/* Explore Button */}
+          <Link href='/explore'>
+            <Button variant="ghost" size="lg" className="w-full bg-yellow-500 hover:bg-yellow-600 text-white rounded">
                 Explore
             </Button>
+          </Link>
+
+            {/* Sign Out Button */}
+            <div className="mt-auto"> {/* Pushes the sign-out button to the bottom */}
+            <Button
+                onClick={handleSignOutRoute} // Function to handle sign-out logic
+                variant="ghost"
+                size="lg"
+                className="w-full bg-red-600 hover:bg-red-700 text-white rounded"
+            >
+                Sign Out
+            </Button>
+            </div>
         </div>
-     );
+      );
+      
+      
 }
  
 export default Sidebar_Left;

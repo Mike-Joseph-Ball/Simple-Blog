@@ -1,8 +1,9 @@
 //This module first checks if the user's JWT Token is valid, and then it adds the user to the mySQL DB.
 //This was written so that user's who signed up and were added to firebase were also added to the mySQL DB at the same time
 import { createConnection } from '@/lib/db'
+import { createPool } from '@/lib/db'
 import { NextApiRequest, NextApiResponse } from "next";
-import verify_id_token_helper from '@/lib/_firebase/server_authentication/Verify_Firebase_Auth_Helper'
+import verify_id_token_helper from '@/lib/_firebase/server/Verify_Firebase_Auth_Helper'
 
 
   
@@ -16,10 +17,11 @@ const Fetch_Post_Given_Post_Id = async (req : NextApiRequest, res : NextApiRespo
     //console.log('CREATE_USER: email:',user_email)
 
     const decodedToken = await verify_id_token_helper(tokenId)
-    const user_email = decodedToken.email
+
+    const db = await createPool.getConnection();
+
     if(decodedToken){
         try {
-            const db = await createConnection();
             const sql = 'SELECT * FROM Posts WHERE Post_id = (?)'
             const [response] = await db.query(sql, [postId])
             
@@ -30,6 +32,8 @@ const Fetch_Post_Given_Post_Id = async (req : NextApiRequest, res : NextApiRespo
             // Check if the error is an instance of a known SQL error class
             const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
             return res.status(400).json({ success: false, message: errorMessage,errno:error.errno });
+        } finally {
+            await db.release()
         }
     } else {
         return res.status(403).json({success: false, message: "forbidden"})

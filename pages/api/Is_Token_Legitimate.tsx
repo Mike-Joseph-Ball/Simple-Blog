@@ -16,7 +16,7 @@
 // idToken comes from the client app
 
 import { NextApiRequest, NextApiResponse } from "next";
-import verify_id_token_helper from '@/lib/_firebase/server_authentication/Verify_Firebase_Auth_Helper'
+import verify_id_token_helper from '@/lib/_firebase/server/Verify_Firebase_Auth_Helper'
 
 //require imports are disabled by default, but this is how the documentation does it so I'm not going to do it differently
 /* eslint-disable @typescript-eslint/no-require-imports */

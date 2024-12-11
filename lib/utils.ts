@@ -65,7 +65,7 @@ const convertEditorjsDataToHumanReadable = (editorJsData:string) => {
  for(let i = 0;i < editorJsDataObj.blocks.length;i++) {
   if(editorJsDataObj.blocks[i].data) {
     if(returnString.length > 100) {
-      let trimmedReturnString = returnString.substring(0,100) + '...[click post to contiue reading]'
+      let trimmedReturnString = returnString.substring(0,100) + '...[click post to continue reading]'
       return trimmedReturnString
      }
     if(editorJsDataObj.blocks[i].data.text === undefined)

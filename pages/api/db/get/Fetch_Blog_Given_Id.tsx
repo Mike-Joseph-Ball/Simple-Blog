@@ -1,8 +1,11 @@
 import { createConnection } from '@/lib/db'
+import { createPool } from '@/lib/db'
 import { NextApiRequest, NextApiResponse } from 'next'
-import verify_id_token_helper from '@/lib/_firebase/server_authentication/Verify_Firebase_Auth_Helper'
+import verify_id_token_helper from '@/lib/_firebase/server/Verify_Firebase_Auth_Helper'
 
 const Fetch_Blog_Given_Id = async (req:NextApiRequest,res:NextApiResponse) => {
+    const db = await createPool.getConnection();
+
     try {
         const {tokenId,blogId} = req.body
 
@@ -12,7 +15,6 @@ const Fetch_Blog_Given_Id = async (req:NextApiRequest,res:NextApiResponse) => {
             return res.status(403).json({success:false,message:"forbidden"})
         }
 
-        const db = await createConnection()
         const sql = 'SELECT * FROM Blogs WHERE Blog_id = (?)'
         const [blogDetails] = await db.query(sql,[blogId])
 
@@ -30,6 +32,8 @@ const Fetch_Blog_Given_Id = async (req:NextApiRequest,res:NextApiResponse) => {
 
     } catch(error) {
         return res.status(500).json({success:false,message:"internal server error",error:error})
+    } finally {
+        await db.release()
     }
 
     

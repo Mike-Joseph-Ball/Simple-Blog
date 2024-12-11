@@ -3,16 +3,13 @@
 import dynamic from 'next/dynamic';
 import { useSearchParams } from 'next/navigation'
 import Fetch_Post_Given_Post_Id_Middleware from '@/lib/mySQL/client_side/GET/Fetch_Post_Given_Post_Id_Middleware';
-import { auth } from '@/lib/_firebase/config'
-import useLocalUserAuth from '@/lib/_firebase/local_authentication/return_local_authentication';
 import useCurrentFirebaseUserVerify from '@/lib/_firebase/local_authentication/Is_Token_Legitimate_Middleware';
 import { useEffect } from 'react';
 import { useState } from 'react';
 import Create_Post_Middleware from '@/lib/mySQL/client_side/PUT/Create_Post_Middleware';
-import { OutputData } from '@editorjs/editorjs';
 import BackToDashboardButton from '@/app/(main)/(routes)/post_editor/_components/back_to_dashboard_button';
-import  Does_User_Own_Post_Middleware from '@/lib/mySQL/client_side/GET/Does_User_Own_Post_Middleware'
 import Comment_Section from './_components/Comment_Section';
+import { SimpleBlogAlert } from './_components/alerts'; 
 //import { ZodNullable } from 'zod';
 // Import dynamically with `ssr: false`
 const Rich_Text_Editor = dynamic(() => import('@/app/(main)/(routes)/post_editor/_components/Rich_Text_Editor'), { ssr: false });
@@ -130,6 +127,7 @@ const Post_Editor = () => {
         return('blog not specified in URL param')
     } else if(loadedProperly && postId && postContents !== null && postTitle) {
         return (<div>
+            <SimpleBlogAlert/>
             <BackToDashboardButton blogId={blogId}/>
             <Rich_Text_Editor postTitle={postTitle} postContents={postContents} postId={postId}/>
             <Comment_Section user={user} postId={postId}/>

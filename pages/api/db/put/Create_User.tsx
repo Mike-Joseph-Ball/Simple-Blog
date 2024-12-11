@@ -5,7 +5,8 @@
 
 import { createConnection } from '@/lib/db'
 import { NextApiRequest, NextApiResponse } from "next";
-import verify_id_token_helper from '@/lib/_firebase/server_authentication/Verify_Firebase_Auth_Helper'
+import { createPool } from '@/lib/db'
+import verify_id_token_helper from '@/lib/_firebase/server/Verify_Firebase_Auth_Helper'
 const Create_User = async (req : NextApiRequest, res : NextApiResponse) => {
     //For every single server-side interaction requested by the client, we need to verify their JWT token.
     //So their request body must contain all the data they want added to the DB
@@ -19,8 +20,8 @@ const Create_User = async (req : NextApiRequest, res : NextApiResponse) => {
     const user_email = decodedToken.email;
 
     if(decodedToken){
+        const db = await createPool.getConnection();
         try {
-            const db = await createConnection();
             const sql = 'INSERT INTO UserAccounts (User_email) VALUES (?)'
             const [response] = await db.query(sql, [user_email])
             return (res.status(200).json({success:true, res:response}));
@@ -30,6 +31,8 @@ const Create_User = async (req : NextApiRequest, res : NextApiResponse) => {
             // Check if the error is an instance of a known SQL error class
             const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
             return res.status(400).json({ success: false, message: errorMessage,errno:error.errno });
+        } finally {
+            await db.release()
         }
     } else {
         return res.status(403).json({success: false, message: "forbidden"})

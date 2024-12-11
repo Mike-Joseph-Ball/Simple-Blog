@@ -20,7 +20,7 @@ import { useState } from 'react'
 const Main_Form = () => {
 
   const router = useRouter()
-  const [user, isPending] = userAuth();
+  const [user] = userAuth();
   const [error,setError] = useState(Error)
 
     //Makes a formSchema that will called in the next code block to actually create the form object

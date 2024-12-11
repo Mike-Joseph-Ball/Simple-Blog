@@ -1,12 +1,13 @@
 import { createConnection } from '@/lib/db'
 import { NextApiRequest, NextApiResponse } from "next";
-import verify_id_token_helper from '@/lib/_firebase/server_authentication/Verify_Firebase_Auth_Helper'
+import verify_id_token_helper from '@/lib/_firebase/server/Verify_Firebase_Auth_Helper'
 import Does_User_Own_Post_Middleware from '@/lib/mySQL/client_side/GET/Does_User_Own_Post_Middleware'
 import formidable from 'formidable';
 import Add_Image_To_S3_Bucket from '@/lib/AWS/Add_Image_To_S3_Bucket'
 import fs from 'fs';
 import { ResultSetHeader } from 'mysql2';
 import  doesUserOwnPost  from '@/lib/mySQL/server_side/doesUserOwnPost'
+import { createPool } from '@/lib/db'
 
 //Turning off the nextjs bodyParser allowed for the formidable parser to work in this module.
 //Before this config statement, the form parser was stuck in an infinity loop.
@@ -18,6 +19,7 @@ export const config = {
 
 
 const Create_Image = async (req: NextApiRequest, res : NextApiResponse) => {
+    const db = await createPool.getConnection();
     try {
         //First thing's first, we are going to parse the form data to get all the fields, including the file data.
         if (req.method != 'POST') {
@@ -75,7 +77,6 @@ const Create_Image = async (req: NextApiRequest, res : NextApiResponse) => {
         }
 
         /* add the user to the mySQL DB */
-        const db = await createConnection();
         const sql = 'INSERT INTO Images (Post_id, Image_filename) VALUES (?, ?)';
         const [response] = await db.query<ResultSetHeader>(sql, [postId, filename]);
 
@@ -100,6 +101,8 @@ const Create_Image = async (req: NextApiRequest, res : NextApiResponse) => {
             console.log("General Error:", error.message);
             return res.status(400).json({ success: false, message: error.message });
         }
+    } finally {
+        db.release()
     }
     /* finsish adding user to mySQL DB */
 };

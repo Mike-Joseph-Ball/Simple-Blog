@@ -6,20 +6,30 @@ import { User } from 'firebase/auth';
 import { useState,useEffect } from "react";
 import Create_Comment_Middleware from "@/lib/mySQL/client_side/PUT/Create_Comment_Middleware";
 import Comments_Template from "./Comment_Template";
+import { usePagination } from "./PaginationContext";
 
 interface CommentBoxProps {
     user: User;
-    currentPage: number;
     postId:string;
 }
 
-const CommentBox: React.FC<CommentBoxProps> = ({currentPage,user,postId}) => {
+const CommentBox: React.FC<CommentBoxProps> = ({user,postId}) => {
+
+    const {currentPage} = usePagination()
 
     const [comments,setComments] = useState<any[]>([])
     const [userComment,setUserComment] = useState("")
+    const [stateCurrentPage,setStateCurrentPage] = useState(currentPage)
+
+    useEffect(()  => {
+        setStateCurrentPage(currentPage)
+    },[currentPage])
 
     //current page determines which 10 comments to grab.
     //eg. current page = 2, grab comments 10-20
+
+    console.log('comment box current page:',currentPage)
+    console.log('comments:',comments)
 
     useEffect(() => {
         const getComments = async() => {
@@ -27,11 +37,11 @@ const CommentBox: React.FC<CommentBoxProps> = ({currentPage,user,postId}) => {
             console.log('currentPage:',currentPage)
             const userToken = await user.getIdToken()
             const resp = await Fetch_Comments_Associated_With_Post_Middleware(userToken,postId,currentPage)
-            setComments(resp.res)
+            setComments(resp.res)   
             console.log('comments in current offset:',resp.res)
         }
         getComments()
-    },[])
+    },[currentPage])
 
     const handleSubmit = async(e: React.FormEvent) => {
         e.preventDefault(); // Stops the form's default behavior

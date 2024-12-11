@@ -1,8 +1,9 @@
 import { createConnection } from '@/lib/db'
+import { createPool } from '@/lib/db'
 
 const getBlogDetailsGivenBlogId = async (blogId:number) => {
+    const db = await createPool.getConnection();
     try {
-        const db:any = await createConnection()
         const sql = 'SELECT * FROM Blogs WHERE Blog_id = (?)'
         const [blogDetails] = await db.query(sql,[blogId])
         return blogDetails
@@ -13,6 +14,8 @@ const getBlogDetailsGivenBlogId = async (blogId:number) => {
             throw new Error(String(error))
         }
         
+    } finally {
+        await db.release()
     }
 
 }

@@ -1,9 +1,11 @@
 import { createConnection } from '@/lib/db'
 import { NextApiRequest, NextApiResponse } from "next";
-import verify_id_token_helper from '@/lib/_firebase/server_authentication/Verify_Firebase_Auth_Helper'
+import verify_id_token_helper from '@/lib/_firebase/server/Verify_Firebase_Auth_Helper'
 import { RowDataPacket } from 'mysql2';
+import { createPool } from '@/lib/db'
 
 const Update_Post = async (req : NextApiRequest, res : NextApiResponse) => {
+    const db = await createPool.getConnection();
     try {
         const { tokenId,Post_id,Post_title,Post_content } = req.body
         //console.log('tokenId:',tokenId)
@@ -14,7 +16,6 @@ const Update_Post = async (req : NextApiRequest, res : NextApiResponse) => {
         }
         const user_email = decodedToken.email;
 
-        const db = await createConnection();
         //2.Verify the user owns the post
         const sqlVerify = 'SELECT post_id FROM Posts WHERE User_email = (?)'
         const [responseVerify] = await db.query<RowDataPacket[]>(sqlVerify,[user_email])
@@ -36,6 +37,8 @@ const Update_Post = async (req : NextApiRequest, res : NextApiResponse) => {
 
     } catch(error) {
         return res.status(500).json({success:false,message:'Unknown internal server error',error:error})
+    } finally {
+        await db.release()
     }
     
 

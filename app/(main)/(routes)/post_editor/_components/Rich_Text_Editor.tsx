@@ -9,6 +9,7 @@ import useLocalUserAuth from '@/lib/_firebase/local_authentication/return_local_
 import Update_Post_Middleware from '@/lib/mySQL/client_side/PUT/Update_Post_Middleware';
 import Toggle_Post_Visibility_Middleware from '@/lib/mySQL/client_side/PUT/Toggle_Post_Visibility_Middleware';
 import { OutputData } from '@editorjs/editorjs';
+import { useAppContext } from "@/app/context";
 //import { SuccessAlert } from '@/app/(main)/(routes)/post_editor/_components/alerts'
 //I tried to define editorJS's OutputData type myself but it looks like I can just import it. 
 
@@ -47,6 +48,8 @@ const Rich_Text_Editor: React.FC<RichTextEditorProps> = ({postContents,postId,po
   const [userToken,setUserToken] = useState<string|null>(null)
   const [pageLoaded,setPageLoaded] = useState<boolean|null>(null)
 
+  //App context
+  const { setAlertMessage } = useAppContext();
 
   //const [savedPostContent, setSavedPostContent] = useState<OutputData | undefined>(undefined);
   const [user] = useLocalUserAuth();
@@ -214,6 +217,7 @@ const Rich_Text_Editor: React.FC<RichTextEditorProps> = ({postContents,postId,po
         //console.log('savedData',savedData)
         console.log('Editor data:', JSON.stringify(savedData, null, 4));
         console.log('Updating Post in DB response:',updatePostResponse)
+        setAlertMessage('successfully saved post!')
         return(updatePostResponse)
       }
     } catch (error) {
@@ -229,9 +233,11 @@ const Rich_Text_Editor: React.FC<RichTextEditorProps> = ({postContents,postId,po
         throw new Error('saving post failed:',resultSave)
       }
       if(userToken && postId){
-      const resultToggle = await Toggle_Post_Visibility_Middleware(userToken,postId.toString())
+      const resultToggle = await Toggle_Post_Visibility_Middleware(userToken,postId)
       if(resultToggle.success !== true) {
         throw new Error('toggle post visibility failed:',resultToggle)
+      } else {
+        console.log('post toggle successful!')
       }
       } else {
         throw new Error('post publishing failed, userToken and/or postId is undefined')

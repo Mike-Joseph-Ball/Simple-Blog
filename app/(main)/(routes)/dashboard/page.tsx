@@ -2,11 +2,10 @@
 import Sidebar_Left from '@/app/(main)/(routes)/dashboard/_components/sidebar_left'
 import PostContent from '@/app/(main)/(routes)/dashboard/_components/post_content'
 import { useSearchParams } from 'next/navigation'
-import { getDefaultBlogFromLocalStorage,setDefaultBlogInLocalStorage,convertEditorjsDataToHumanReadable } from '@/lib/utils'
+import { getDefaultBlogFromLocalStorage,setDefaultBlogInLocalStorage } from '@/lib/utils'
 import useLocalUserAuth from '@/lib/_firebase/local_authentication/return_local_authentication';
 import { getIdToken } from 'firebase/auth'
-import { useEffect, useRef } from 'react'
-import { useState } from 'react'
+import { useEffect,useState } from 'react'
 import Query_Most_Used_Blog from '@/lib/mySQL/client_side/GET/Query_Most_Used_Blog'
 import Fetch_Blog_Posts_Middleware from '@/lib/mySQL/client_side/GET/Fetch_Blog_Posts_Middleware'
 import Query_Blogs_Associated_With_User from '@/lib/mySQL/client_side/GET/Query_Blogs_Associated_With_User'

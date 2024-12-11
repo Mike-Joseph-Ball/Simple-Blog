@@ -1,9 +1,9 @@
 import { getAuth, signOut } from "firebase/auth";
 import { Button } from "@/components/ui/button";
 const SignOutButton = () => {
-    const auth = getAuth();
 
     const handleSignOut = () => {
+      const auth = getAuth();
         signOut(auth).then(() => {
             console.log("User Signed Out Correctly")
           }).catch((error) => {

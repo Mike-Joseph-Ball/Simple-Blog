@@ -1,5 +1,4 @@
 'use client'
-import useLocalUserAuth from '@/lib/_firebase/local_authentication/return_local_authentication';
 import { useState } from 'react';
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from '@/lib/_firebase/config';
