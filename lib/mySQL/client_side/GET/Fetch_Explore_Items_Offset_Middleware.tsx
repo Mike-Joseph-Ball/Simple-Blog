@@ -3,7 +3,7 @@ const Fetch_Explore_Items_Offset_Middleware = async (tokenId:string,exploreItem:
         const res = await fetch('api/db/get/Fetch_Explore_Items_Offset', {
             method: 'PUT',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({tokenId,exploreItem,currentPage})
+            body: JSON.stringify({tokenId,exploreItem,currentPage,searchQuery})
         })
         const data = await res.json()
         if(res.ok) {

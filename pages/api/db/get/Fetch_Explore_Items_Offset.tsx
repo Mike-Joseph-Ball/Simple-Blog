@@ -32,6 +32,8 @@ const Fetch_Explore_Items_Offset = async(req:NextApiRequest,res:NextApiResponse)
         } else if(exploreItem==='Posts') {
             const itemsPerPage = 10
             const offset = (currentPage-1) * itemsPerPage
+            console.log('offset:',offset)
+            console.log('sqlSearchString:',sqlSearchString)
             const sql = 'SELECT * FROM Posts WHERE Is_post_public=1 AND Post_title LIKE ? LIMIT ? OFFSET ?'
             const [response] = await db.query(sql,[sqlSearchString,itemsPerPage,offset])
             return res.status(200).json({success:true,res:response})

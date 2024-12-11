@@ -27,9 +27,9 @@ const Toggle_Post_Visibility = async (req: NextApiRequest, res : NextApiResponse
 
     //given a post ID, change the BIT for post visibility
     const sqlUpdate = `UPDATE Posts
-    SET Blog_id = (?)
+    SET Is_post_public = (?)
     WHERE Post_id = (?)`
-    const [Update_visibility] = await db.query(sqlUpdate,[isPostPublic,Post_id])
+    const [Update_visibility] = await db.query(sqlUpdate,[!isPostPublicBoolean,Post_id])
     res.status(200).json({success:true,res:Update_visibility})
 
     } catch (error:any) {
