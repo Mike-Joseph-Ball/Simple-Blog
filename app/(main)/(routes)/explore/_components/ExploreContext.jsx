@@ -9,7 +9,7 @@ export const useExploreContext = () => useContext(ExploreContext);
 
 // Context provider
 export const ExploreProvider = ({ children }) => {
-  const [activeTab, setActiveTab] = useState();
+  const [activeTab, setActiveTab] = useState('Blogs');
   const [currentPage,setCurrentPage] = useState(1)
   const [numItems,setNumItems] = useState(0)
   const [searchBox,setSearchBox] = useState()

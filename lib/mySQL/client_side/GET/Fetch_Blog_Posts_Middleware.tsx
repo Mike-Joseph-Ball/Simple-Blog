@@ -1,4 +1,4 @@
-const Fetch_Blog_Details_And_Posts_Middleware = async (user_tokenId:string,blog_id:Number) => {
+const Fetch_Blog_Details_And_Posts_Middleware = async (user_tokenId:string,blog_id:Number|undefined) => {
 
     try {
         const res = await fetch('api/db/get/Fetch_Blog_Posts', {

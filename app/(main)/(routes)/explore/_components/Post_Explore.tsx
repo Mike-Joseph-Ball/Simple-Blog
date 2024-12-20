@@ -14,21 +14,34 @@ const Post_Explore: React.FC<Post_Explore_Prop> = ({user}) => {
 
     const [searchQuery,setSearchQuery] = useState('')
     const [searchResult,setSearchResult] = useState([])
-    const { currentPage,setCurrentPage } = useExploreContext();
-
+    const { currentPage,setCurrentPage,numItems,setNumItems } = useExploreContext();
+    const [isFirstRender, setIsFirstRender] = useState(true);
+    
 
     //set the current page to 1 on first component render
     useEffect(() => {
         setCurrentPage(1); // Set the default value only on the first page load
+        setNumItems(0)
       }, []); // Empty dependency list ensures it runs only once after the initial render
 
     const handleSearchClick = async() => {
         const userToken = await user.getIdToken()
         console.log('Search Query:', searchQuery); // Log or handle the search query when the button is clicked
         const items = await Fetch_Explore_Items_Offset_Middleware(userToken,'Posts',currentPage,searchQuery)
-        console.log("fetched items:",items)
+        console.log("fetched posts:",items)
         setSearchResult(items.res)
+        setNumItems(items.totalCount)
+        console.log('total count:',items.totalCount)
       };
+
+    //This will perform a new search when the pagination changes the currentPage
+    useEffect(() => {
+      if (isFirstRender) {
+        setIsFirstRender(false); // Set the flag to false after the first render
+        return;
+      }
+      handleSearchClick();
+    }, [currentPage]);
 
       const handleInputChange = (event:any) => {
         setSearchQuery(event.target.value); // Update state with input value
@@ -40,9 +53,9 @@ const Post_Explore: React.FC<Post_Explore_Prop> = ({user}) => {
                 <Input type="post" value={searchQuery} onChange={handleInputChange} placeholder="search post here" />
                 <Button  onClick={handleSearchClick}>Search</Button>
             </div>
-            
+
             {searchResult.map((post:Post) => (
-                <Post_Card key={post.Post_id} postDetails={post} />
+                <Post_Card key={post.Post_id} postDetails={post} user={user}/>
             ))}
         </div>
      );

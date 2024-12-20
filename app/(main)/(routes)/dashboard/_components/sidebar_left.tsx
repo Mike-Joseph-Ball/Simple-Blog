@@ -19,6 +19,11 @@ const Sidebar_Left: React.FC<ChildComponentProps> = ({blogInfoArray = [],default
         router.push('/')
     }
 
+    function routeToDashboard() {
+      router.push('/dashboard')
+      window.location.reload(); // Full page reload
+    }
+
     return (
         <div className="flex flex-col p-4 w-60 min-h-screen bg-slate-800 text-white space-y-6">
           {/* Blog Selector */}
@@ -48,7 +53,7 @@ const Sidebar_Left: React.FC<ChildComponentProps> = ({blogInfoArray = [],default
           )}
       
           {!doesUserOwnBlog && (
-            <Button variant="ghost" size="lg" className="w-full bg-red-500 hover:bg-red-600 text-white rounded">
+            <Button onClick={routeToDashboard} variant="ghost" size="lg" className="w-full bg-red-500 hover:bg-red-600 text-white rounded">
               Return to My Blog Dashboard
             </Button>
           )}

@@ -16,7 +16,7 @@ interface Blog {
   created_at: string
 }
 
-interface BlogDetails {
+export interface BlogDetails {
   defaultBlog: Blog;
   post_count: number;
 }

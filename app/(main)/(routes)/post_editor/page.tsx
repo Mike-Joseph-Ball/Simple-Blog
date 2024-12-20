@@ -10,6 +10,7 @@ import Create_Post_Middleware from '@/lib/mySQL/client_side/PUT/Create_Post_Midd
 import BackToDashboardButton from '@/app/(main)/(routes)/post_editor/_components/back_to_dashboard_button';
 import Comment_Section from './_components/Comment_Section';
 import { SimpleBlogAlert } from './_components/alerts'; 
+import Does_User_Own_Blog_Middleware from '@/lib/mySQL/client_side/GET/Does_User_Own_Blog_Middleware';
 //import { ZodNullable } from 'zod';
 // Import dynamically with `ssr: false`
 const Rich_Text_Editor = dynamic(() => import('@/app/(main)/(routes)/post_editor/_components/Rich_Text_Editor'), { ssr: false });
@@ -31,6 +32,7 @@ const Post_Editor = () => {
     const [postTitle,setPostTitle] = useState<null|string>(null)
     const [postId, setPostId] = useState<null|string>(null)
     const {isValid,user} = useCurrentFirebaseUserVerify();
+    const [doesOwnPost,setDoesOwnPost] = useState<boolean>(false)
 
     //check if there is a postId in the URL. If there is, set the post id. 
     const searchParams = useSearchParams()
@@ -109,6 +111,23 @@ const Post_Editor = () => {
         setupPostEditor()
     },[isValid])
 
+    //checks if the user owns the post
+    useEffect(() =>{
+        async function checkIfUserOwnsPost  () {
+            console.log('hello?')
+            if(!user || !blogId) {
+                return false
+            }
+            const tokenId = await user.getIdToken()
+            const resp = await Does_User_Own_Blog_Middleware(tokenId,blogId)
+            console.log('does user own blog?',resp.ownBlog)
+            setDoesOwnPost(resp.ownBlog)
+        }
+        checkIfUserOwnsPost()
+    },[user,blogId])
+
+    //checks if comments are allowed on this post
+    
 
     //If there is a postId, attempt to capture the post details. store them in a state variable
     //Check to see if the currently logged in user is the owner of the post_id. Editor=true
@@ -122,14 +141,14 @@ const Post_Editor = () => {
     //console.log('postContents:',postContents)
     //console.log('postTitle:',postTitle)
     console.log('blogId:',blogId)
-
+    console.log('doesOwnPost:',doesOwnPost)
     if(!blogId || blogId === null || blogId ==='null') {
         return('blog not specified in URL param')
     } else if(loadedProperly && postId && postContents !== null && postTitle) {
         return (<div>
             <SimpleBlogAlert/>
             <BackToDashboardButton blogId={blogId}/>
-            <Rich_Text_Editor postTitle={postTitle} postContents={postContents} postId={postId}/>
+            <Rich_Text_Editor postTitle={postTitle} postContents={postContents} postId={postId} doesOwnPost={doesOwnPost}/>
             <Comment_Section user={user} postId={postId}/>
         </div>);
     }

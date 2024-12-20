@@ -26,9 +26,14 @@ const Fetch_Explore_Items_Offset = async(req:NextApiRequest,res:NextApiResponse)
         if(exploreItem==='Blogs') {
             const itemsPerPage = 10
             const offset = (currentPage-1) * itemsPerPage
-            const sql = 'SELECT * FROM Blogs LIMIT ? OFFSET ?'
-            const [response] = await db.query(sql,[itemsPerPage,offset])
-            return res.status(200).json({success:true,res:response})
+            console.log('itemsPerPage:',itemsPerPage)
+            console.log('offset:',offset)
+            console.log('sqlSearchString:',sqlSearchString)
+            const sql = 'SELECT * FROM Blogs WHERE blog_title LIKE ? LIMIT ? OFFSET ?'
+            const [response] = await db.query(sql,[sqlSearchString,itemsPerPage,offset])
+            const sqlTotal = 'SELECT COUNT(*) AS blogCount FROM Blogs WHERE blog_title LIKE ?';
+            const [resp] = await db.query(sqlTotal,[sqlSearchString])
+            return res.status(200).json({success:true,res:response,totalCount:(resp as any[])[0].blogCount})
         } else if(exploreItem==='Posts') {
             const itemsPerPage = 10
             const offset = (currentPage-1) * itemsPerPage
@@ -36,7 +41,12 @@ const Fetch_Explore_Items_Offset = async(req:NextApiRequest,res:NextApiResponse)
             console.log('sqlSearchString:',sqlSearchString)
             const sql = 'SELECT * FROM Posts WHERE Is_post_public=1 AND Post_title LIKE ? LIMIT ? OFFSET ?'
             const [response] = await db.query(sql,[sqlSearchString,itemsPerPage,offset])
-            return res.status(200).json({success:true,res:response})
+            const sqlTotal = 'SELECT COUNT(*) AS postCount FROM Posts WHERE Is_post_public=1 AND Post_title LIKE ?';
+            const [resp] = await db.query(sqlTotal,[sqlSearchString])
+            return res.status(200).json({success:true,res:response,totalCount:(resp as any[])[0].postCount})
+        } else if(exploreItem==='Users') {
+            const itemsPerPage = 10
+            const offset = (currentPage-1) * itemsPerPage
         } else {
             throw new Error('exploreItem is unexpected value')
         }

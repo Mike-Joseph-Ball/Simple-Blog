@@ -21,6 +21,7 @@ interface PaginationProps {
 
 const Pagination_Component = () => {
 
+
     const { currentPage, setCurrentPage, numItems, setNumItems} = useExploreContext(); // Access the shared state and setter
     const searchParams = useSearchParams()
     const [stateCurrentPage,setStateCurrentPage] = useState(1)
@@ -31,25 +32,8 @@ const Pagination_Component = () => {
         setStateCurrentPage(currentPage);
     }, [currentPage]);
 
-    function setNewUrl(newCurrentPage: number): string | undefined {
-
-        if (searchParams && numItems) {
-          console.log('searchParams:',searchParams)
-          const params = new URLSearchParams(searchParams);
-      
-          // Determine if the current page is the last one
-          const isLastPage = currentPage >= Math.ceil(numItems / 10);
-      
-          // Add or update the `commentPage` parameter
-            params.set('commentPage', newCurrentPage.toString());
-            console.log('newParams:',params)
-            console.log('newParamsString:',params.toString())
-            //setCurrentPage(newCurrentPage)
-            return params.toString();
-        }
-        console.log('make it here')
-        return ''
-      }
+    console.log('CurrentPage:',currentPage)
+    console.log('num items:',numItems)
 
     if(searchParams) {
         return (
@@ -72,7 +56,7 @@ const Pagination_Component = () => {
                   </PaginationItem>
                   */}
                   <PaginationItem>
-                      <PaginationNext onClick={() => currentPage <= Math.ceil(numItems / 10) && setCurrentPage(currentPage+1)}/>
+                      <PaginationNext onClick={() => currentPage < Math.ceil(numItems / 10) && setCurrentPage(currentPage+1)}/>
                   </PaginationItem>
                 </PaginationContent>
             </Pagination> );

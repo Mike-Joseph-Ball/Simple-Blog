@@ -19,10 +19,17 @@ const Fetch_Blog_Details_And_Posts = async (req: NextApiRequest, res:NextApiResp
     const db = await createPool.getConnection();
 
     try {
-        //sql to grab all of the posts associated with a blog
-        const sqlPosts = 'SELECT * FROM Posts WHERE Blog_id = (?)'
-        const [associatedPosts] = await db.query(sqlPosts,[blog_id])
-        return (res.status(200).json({success:true,associatedPosts:associatedPosts}))
+        if(blog_id) {
+            //sql to grab all of the posts associated with a blog
+            const sqlPosts = 'SELECT * FROM Posts WHERE Blog_id = (?)'
+            const [associatedPosts] = await db.query(sqlPosts,[blog_id])
+            return (res.status(200).json({success:true,associatedPosts:associatedPosts}))
+        } else {
+            const sqlPosts = 'SELECT * FROM Posts'
+            const [associatedPosts] = await db.query(sqlPosts)
+            return (res.status(200).json({success:true,associatedPosts:associatedPosts}))
+        }
+
     } catch(error) {
         return (res.status(500).json({success:false,message:"internal server error",error:error}))
     } finally {

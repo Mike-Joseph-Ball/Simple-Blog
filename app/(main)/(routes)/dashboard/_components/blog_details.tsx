@@ -4,7 +4,7 @@ interface BlogDetailsProp {
     blogDescription: string | undefined;
 }
 
-const BlogDetails: React.FC<BlogDetailsProp> = ({blogTitle,blogDescription}) => {
+const BlogTitleAndDescription: React.FC<BlogDetailsProp> = ({blogTitle,blogDescription}) => {
     return ( <div className="flex flex-col items-center">
         <div className="text-5xl padding-y-2">
             {blogTitle}
@@ -15,4 +15,4 @@ const BlogDetails: React.FC<BlogDetailsProp> = ({blogTitle,blogDescription}) => 
     </div> );
 }
  
-export default BlogDetails;
+export default BlogTitleAndDescription;

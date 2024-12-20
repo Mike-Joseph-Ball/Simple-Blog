@@ -10,11 +10,19 @@ import Query_Most_Used_Blog from '@/lib/mySQL/client_side/GET/Query_Most_Used_Bl
 import Fetch_Blog_Posts_Middleware from '@/lib/mySQL/client_side/GET/Fetch_Blog_Posts_Middleware'
 import Query_Blogs_Associated_With_User from '@/lib/mySQL/client_side/GET/Query_Blogs_Associated_With_User'
 import Query_Blog_Given_Id_Middlware from '@/lib/mySQL/client_side/GET/Query_Blog_Given_Id_Middleware'
-import BlogDetails from './_components/blog_details'
+import BlogTitleAndDescription from './_components/blog_details'
 import Does_User_Own_Blog_Middleware from '@/lib/mySQL/client_side/GET/Does_User_Own_Blog_Middleware'
 import { useRouter } from 'next/navigation';
 
-interface Blog {
+export interface MySQLError extends Error {
+    code?: string, // MySQL error code (e.g., 'ER_NO_SUCH_TABLE')
+    errno?: number, // MySQL numeric error code
+    sqlMessage?: string, // Detailed error message
+    sqlState?: string, // SQL state
+    sql?: string, // The SQL query that caused the error
+  };
+
+export interface Blog {
     Blog_id: number;
     blog_title: string;
     blog_description: string;
@@ -26,7 +34,7 @@ interface Blog {
 
 export interface BlogDetails {
     defaultBlog: Blog,
-    post_count: 2
+    post_count: number
 }
 
 const Dashboard = () => {
@@ -35,7 +43,7 @@ const Dashboard = () => {
     const[usersBlogs,setUsersBlogs] = useState([])
     const [blogLoaded,setBlogLoaded] = useState<boolean|null>(null)
     const [associatedPosts, setAssociatedPosts] = useState<any[]>([]);
-    const [errorArray,setError] = useState<any[]>([]) 
+    const [errorArray,setError] = useState<(MySQLError|string|Error)[]>([]) 
     //const [user, setUser] = useState<User | null>(null); // Type user state with Firebase User
     const [user,isPending] = useLocalUserAuth();
     const [defaultBlogId,setDefaultBlogId] = useState<string | null>(null)
@@ -44,7 +52,7 @@ const Dashboard = () => {
     const router = useRouter();
 
     const searchParams = useSearchParams()
-    let blog_id = searchParams?.get('blogId')
+    const blog_id = searchParams?.get('blogId')
 
     interface Blog {
         Blog_id: number;
@@ -82,12 +90,14 @@ const Dashboard = () => {
                     //USER TOKEN IS UNDEFINED WHEN PASSED TO SERVER
                     const userToken = await getIdToken(user)
 
-                    let localBlogDetails: any;
+                    let localBlogDetails: BlogDetails|null = null;
                     if(user.email) {
-                        localBlogDetails = getDefaultBlogFromLocalStorage(user.email);
+                        const localBlogDetailsString = getDefaultBlogFromLocalStorage(user.email);
+                        if (localBlogDetailsString) {
+                            localBlogDetails = JSON.parse(localBlogDetailsString);
+                        }
                         if(localBlogDetails) {
                             console.log('local blog details:',localBlogDetails)
-                            localBlogDetails = JSON.parse(localBlogDetails)
                         }
                     }
         
@@ -110,7 +120,7 @@ const Dashboard = () => {
                         //If you can get the Default blog from local storage, use that and go right to getting blog details
 
                         setDefaultBlog(localBlogDetails)
-                        setDefaultBlogId(localBlogDetails.defaultBlog.Blog_id)
+                        setDefaultBlogId(localBlogDetails.defaultBlog.Blog_id.toString())
                         console.log('Default Blog Id:',defaultBlog)
                     } else if(user && user.email) {
                         console.log("Default blog must be acquired from mySQL")
@@ -251,7 +261,7 @@ const Dashboard = () => {
                 }
                 setOwnBlog(doesUserOwnBlog.ownBlog)
             } catch(error) {
-                setError((prevError) => [...prevError, 'unable to figure out if user owns the current blog']);
+                setError((prevError) => [...prevError, 'unable to figure out if user owns the current blog:'+error]);
             }
 
         }
@@ -272,7 +282,7 @@ const Dashboard = () => {
         return(
             <div>
                 <h1>Error occured when trying to retrieve dashboard details:</h1>
-                {errorArray.map((error:any,index:any) => (
+                {errorArray.map((error:any,index:number) => (
                     error.errno === -111 ? <p className="text-red-700" >Connection to database was unsuccessful</p> : <p className="text-red-700" key={index}>{error.toString()}</p>
                 ))}
             </div>
@@ -288,7 +298,7 @@ const Dashboard = () => {
                     <Sidebar_Left blogInfoArray={usersBlogs} defaultBlog={defaultBlog} doesUserOwnBlog={ownBlog}/>
                 </div>
                 <div className='w-full flex flex-col'>
-                    <BlogDetails blogTitle={defaultBlog?.defaultBlog.blog_title} blogDescription={defaultBlog?.defaultBlog.blog_description}/>
+                    <BlogTitleAndDescription blogTitle={defaultBlog?.defaultBlog.blog_title} blogDescription={defaultBlog?.defaultBlog.blog_description}/>
                     <PostContent postData={associatedPosts} blogId={defaultBlogId} doesUserOwnBlog={ownBlog}/>
                 </div>
             </div>

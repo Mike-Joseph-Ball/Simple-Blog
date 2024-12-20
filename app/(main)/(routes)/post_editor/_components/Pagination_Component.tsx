@@ -21,6 +21,7 @@ const Pagination_Component: React.FC<PaginationProps> = ({numComments}) => {
 
     const { currentPage, setCurrentPage } = usePagination(); // Access the shared state and setter
     const searchParams = useSearchParams()
+    console.log('pagination num comments:',numComments)
 
     useEffect(() => {
         if(searchParams){
@@ -57,7 +58,7 @@ const Pagination_Component: React.FC<PaginationProps> = ({numComments}) => {
                   <PaginationItem>
                       <Link
                       href={
-                        currentPage > 1
+                        currentPage > 1 && numComments > 0
                           ? "/post_editor?" + setNewUrl((currentPage - 1))
                           : "/post_editor?" + searchParams.toString()
                         }
@@ -71,11 +72,17 @@ const Pagination_Component: React.FC<PaginationProps> = ({numComments}) => {
                           <PaginationItem key={i}>
                             {/* Use Link for client-side navigation */}
                             <Link
-                              href={"/post_editor?" + setNewUrl((i + 1))}
+                              href={
+                                numComments === 0
+                                  ?  "/post_editor?" + searchParams.toString()
+                                  :  "/post_editor?" + setNewUrl(i + 1)
+                              }
                               passHref
                               scroll={false}
                             >{
-                              <PaginationLink href={'/post_editor?'+setNewUrl((i+1))} isActive={currentPage === (i+1)}>
+                              <PaginationLink
+                                isActive={currentPage === i + 1}
+                              >
                                 {(i+1)*10}
                               </PaginationLink>
                         }</Link>
@@ -90,7 +97,7 @@ const Pagination_Component: React.FC<PaginationProps> = ({numComments}) => {
                   <PaginationItem>
                   <Link
                       href={
-                        currentPage <= Math.ceil(numComments / 10)
+                        currentPage <= Math.ceil(numComments / 10) && numComments > 0
                           ? "/post_editor?" + setNewUrl((currentPage + 1))
                           : "/post_editor?" + searchParams.toString()
                         }

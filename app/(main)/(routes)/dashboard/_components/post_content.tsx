@@ -6,13 +6,14 @@ import Delete_Post_Middleware from '@/lib/mySQL/client_side/PUT/Delete_Post_Midd
 import { Button } from '@/components/ui/button';
 import useLocalUserAuth from '@/lib/_firebase/local_authentication/return_local_authentication';
 import { useState } from 'react'
+import { Post } from '../../explore/_components/item_cards/Post_Card';
 type ChildComponentProps = {
-    postData: Array<any>;
+    postData: Array<Post>;
     blogId: string|null;
     doesUserOwnBlog: boolean | null;
 };
 
-const PostContent: React.FC<ChildComponentProps> = ({postData = [],blogId=null}) => {    
+const PostContent: React.FC<ChildComponentProps> = ({postData = [],blogId=null,doesUserOwnBlog}) => {    
 
     const router = useRouter()
     const [user] = useLocalUserAuth()
@@ -60,14 +61,17 @@ const PostContent: React.FC<ChildComponentProps> = ({postData = [],blogId=null})
                           </p>
                         )}
                       </div>
-                      <div className="ml-4">
-                        {/* Placeholder for trash icon */}
-                        <div className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center text-white">
-                        <Button variant='ghost' onClick={(e) => { e.stopPropagation(); handlePostDelete(post.Post_id);}}>
-                            🗑️
-                          </Button>
+                      {
+                        doesUserOwnBlog && 
+                        <div className="ml-4">
+                          {/* Placeholder for trash icon */}
+                          <div className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center text-white">
+                          <Button variant='ghost' onClick={(e) => { e.stopPropagation(); handlePostDelete(post.Post_id);}}>
+                              🗑️
+                            </Button>
+                          </div>
                         </div>
-                      </div>
+                      }
                     </div>
                   ))}
               </div>

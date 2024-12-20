@@ -1,6 +1,8 @@
 import { convertEditorjsDataToHumanReadable } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 import React from 'react';
+import {getUserDisplayNameByEmail} from '@/lib/_firebase/server/Retrieve_Display_Names'
+import { User } from 'firebase/auth';
 
 export interface Post {
   Post_id: number;
@@ -18,9 +20,10 @@ export interface Post {
 
 interface PostDetailsProp {
   postDetails: Post;
+  user: User;
 }
 
-const Post_Card: React.FC<PostDetailsProp> = ({ postDetails }) => {
+const Post_Card: React.FC<PostDetailsProp> = ({ postDetails,user }) => {
   const router = useRouter();
 
   const handleClick = (postId: number, blogId: number) => {
@@ -39,7 +42,7 @@ const Post_Card: React.FC<PostDetailsProp> = ({ postDetails }) => {
 
         {/* User Email */}
         <p className="text-sm text-gray-500">
-          <span className="font-medium text-gray-700">By:</span> {postDetails.User_email}
+          <span className="font-medium text-gray-700">By:</span> {user.displayName}
         </p>
 
         {/* Content */}

@@ -40,9 +40,10 @@ type RichTextEditorProps = {
   postTitle: string;
   postContents: string;
   postId: string;
+  doesOwnPost: boolean;
 }
 
-const Rich_Text_Editor: React.FC<RichTextEditorProps> = ({postContents,postId,postTitle}) => {
+const Rich_Text_Editor: React.FC<RichTextEditorProps> = ({postContents,postId,postTitle,doesOwnPost}) => {
   const editorRef = useRef<EditorJS | null>(null); 
   const initEditorCalled = useRef(false); // To prevent double initialization
   const [userToken,setUserToken] = useState<string|null>(null)
@@ -155,7 +156,9 @@ const Rich_Text_Editor: React.FC<RichTextEditorProps> = ({postContents,postId,po
       },
       onReady: () => console.log("Editor is ready"),
       onChange: () => console.log("Content changed"),
-      data: postContentsObj
+      data: postContentsObj,
+      readOnly: !doesOwnPost
+
     });
   };
 

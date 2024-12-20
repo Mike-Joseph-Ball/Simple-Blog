@@ -1,6 +1,6 @@
 'use client'
 import Navbar from "./_components/Navbar";
-import {ExploreProvider,useExploreContext} from './_components/ExploreContext'
+import {useExploreContext} from './_components/ExploreContext'
 import Blog_Explore from "./_components/Blog_Explore";
 import Post_Explore from "./_components/Post_Explore";
 import User_Explore from "./_components/User_Explore";
@@ -9,7 +9,7 @@ import Pagination_Component from "./_components/Pagination_Component";
 const ExplorePage = () => {
 
     //explore page is seperated into posts and blogs. Each has a search bar. 
-    const { activeTab, setActiveTab } = useExploreContext();
+    const { activeTab,numItems } = useExploreContext();
 
 
     const {user,isValid} = useCurrentFirebaseUserVerify();
@@ -21,10 +21,10 @@ const ExplorePage = () => {
     if(user) {
         return (<div className="flex justify-center items-center flex-col">
             <Navbar/>
-            {activeTab === 'Blogs' && <Blog_Explore />}
+            {activeTab === 'Blogs' && <Blog_Explore user={user}/>}
             {activeTab === 'Posts' && <Post_Explore user={user}/>}
-            {activeTab === 'Users' && <User_Explore />}
-            {activeTab && <Pagination_Component/>}
+            {activeTab === 'Users' && <User_Explore user={user}/>}
+            {numItems !== 0 && <Pagination_Component/>}
         </div>);
     }
 }

@@ -7,6 +7,7 @@ import { RowDataPacket } from 'mysql2';
 
 const Fetch_Count_Explore_Items = async(req:NextApiRequest,res:NextApiResponse) => {
     const {tokenId,exploreItem} = req.body
+    console.log('exploreItem:',exploreItem)
 
     const decodedToken = await verify_id_token_helper(tokenId)
 

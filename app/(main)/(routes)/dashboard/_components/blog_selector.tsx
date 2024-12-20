@@ -8,9 +8,10 @@ import {
   } from "@/components/ui/dropdown-menu"
 import { BlogDetails } from '@/app/(main)/(routes)/dashboard/page'
 import Link from 'next/link'
+import { Blog } from "@/app/(main)/(routes)/dashboard/page"
 
   type ChildComponentProps = {
-    blogInfoArray: Array<any>;
+    blogInfoArray: Array<Blog>;
     defaultBlog: BlogDetails|null;
 }
 const Blog_Selector: React.FC<ChildComponentProps>  = ({blogInfoArray = [], defaultBlog=null}) => {
