@@ -1,8 +1,6 @@
-import { createConnection } from '@/lib/db'
 import { createPool } from '@/lib/db'
 import { NextApiRequest, NextApiResponse } from "next";
 import verify_id_token_helper from '@/lib/_firebase/server/Verify_Firebase_Auth_Helper'
-
 const Does_User_Own_Post = async(req: NextApiRequest, res: NextApiResponse) => {
     const db = await createPool.getConnection();
     try {
@@ -22,6 +20,8 @@ const Does_User_Own_Post = async(req: NextApiRequest, res: NextApiResponse) => {
             return(res.status(200).json({success:true,ownBlog:true}))
         }
         //return(res.status(200).json({success:true,res:response}))
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch(error:any) {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
         return(res.status(400).json({success:false,message:errorMessage,errno:error.errno}))

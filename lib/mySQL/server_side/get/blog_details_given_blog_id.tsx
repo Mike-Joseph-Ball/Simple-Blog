@@ -1,4 +1,3 @@
-import { createConnection } from '@/lib/db'
 import { createPool } from '@/lib/db'
 
 const getBlogDetailsGivenBlogId = async (blogId:number) => {

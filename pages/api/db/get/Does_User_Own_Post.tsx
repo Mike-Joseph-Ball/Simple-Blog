@@ -22,6 +22,8 @@ const Does_User_Own_Post = async(req: NextApiRequest, res: NextApiResponse) => {
             return(res.status(200).json({success:true,ownPost:true}))
         }
         //return(res.status(200).json({success:true,res:response}))
+        
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch(error:any) {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
         return(res.status(400).json({success:false,message:errorMessage,errno:error.errno}))

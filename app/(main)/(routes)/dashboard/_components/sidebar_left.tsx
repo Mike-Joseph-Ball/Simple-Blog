@@ -4,9 +4,9 @@ import Blog_Selector from '@/app/(main)/(routes)/dashboard/_components/blog_sele
 import { BlogDetails } from '@/app/(main)/(routes)/dashboard/page'
 import { handleSignOut } from './Handle_Sign_Out'
 import { useRouter } from 'next/navigation'
-
+import { Blog } from '@/app/(main)/(routes)/dashboard/page'
 type ChildComponentProps = {
-    blogInfoArray: Array<any>;
+    blogInfoArray: Array<Blog>;
     defaultBlog: BlogDetails | null;
     doesUserOwnBlog: boolean | null;
 }

@@ -65,7 +65,7 @@ const convertEditorjsDataToHumanReadable = (editorJsData:string) => {
  for(let i = 0;i < editorJsDataObj.blocks.length;i++) {
   if(editorJsDataObj.blocks[i].data) {
     if(returnString.length > 100) {
-      let trimmedReturnString = returnString.substring(0,100) + '...[click post to continue reading]'
+      const trimmedReturnString = returnString.substring(0,100) + '...[click post to continue reading]'
       return trimmedReturnString
      }
     if(editorJsDataObj.blocks[i].data.text === undefined)
@@ -103,15 +103,15 @@ const convert8061TimeToHumanReadable = (dateString:string) => {
   const formattedDate = new Intl.DateTimeFormat('en-US', options).format(date);
 
   // Add ordinal suffix to the day
-  const day:string = date.getDate().toString(); // Use local day (based on the user's timezone)
-  const ordinalSuffix = (n:any) =>
+  const day:number = date.getDate(); // Use local day (based on the user's timezone)
+  const ordinalSuffix = (n:number) =>
       ['th', 'st', 'nd', 'rd'][
           (n % 100 > 10 && n % 100 < 14) || n % 10 > 3 ? 0 : n % 10
       ];
   const dayWithSuffix = `${day}${ordinalSuffix(day)}`;
 
   // Replace the day in the formatted string
-  const finalString = formattedDate.replace(day, dayWithSuffix);
+  const finalString = formattedDate.replace(day.toString(), dayWithSuffix);
 
   return finalString
   // Output (based on user timezone): "December 9th, 2024, 7:53 PM"

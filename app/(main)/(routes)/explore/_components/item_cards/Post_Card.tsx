@@ -1,7 +1,6 @@
 import { convertEditorjsDataToHumanReadable } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 import React from 'react';
-import {getUserDisplayNameByEmail} from '@/lib/_firebase/server/Retrieve_Display_Names'
 import { User } from 'firebase/auth';
 
 export interface Post {

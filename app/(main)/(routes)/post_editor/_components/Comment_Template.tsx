@@ -14,8 +14,6 @@ interface CommentObjectProps {
 }
 
 const Comments_Template: React.FC<CommentObjectProps> = ({commentObject,user}) => {
-    user.displayName
-    commentObject.Comment_content
     console.log('created_at',commentObject.created_at)
     return(
         <div className="p-4 bg-white shadow-md rounded-lg border border-gray-200 space-y-2">

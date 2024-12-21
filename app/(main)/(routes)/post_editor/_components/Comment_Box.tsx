@@ -8,6 +8,15 @@ import Create_Comment_Middleware from "@/lib/mySQL/client_side/PUT/Create_Commen
 import Comments_Template from "./Comment_Template";
 import { usePagination } from "./PaginationContext";
 
+export interface Comment {
+    Comment_id: number; // Auto-increment primary key
+    Comment_content: string; // LONGTEXT
+    User_email: string; // VARCHAR(100)
+    Approved: boolean; // BIT (1 or 0 mapped to true/false in TypeScript)
+    Post_id: number; // Foreign key referencing Posts(Post_id)
+    created_at: string; // TIMESTAMP in ISO 8601 format (e.g., "2024-12-20T14:23:00Z")
+  }
+
 interface CommentBoxProps {
     user: User;
     postId:string;
@@ -17,8 +26,10 @@ const CommentBox: React.FC<CommentBoxProps> = ({user,postId}) => {
 
     const {currentPage} = usePagination()
 
-    const [comments,setComments] = useState<any[]>([])
+    const [comments,setComments] = useState<Comment[]>([])
     const [userComment,setUserComment] = useState("")
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [stateCurrentPage,setStateCurrentPage] = useState(currentPage)
 
     useEffect(()  => {
@@ -73,7 +84,7 @@ const CommentBox: React.FC<CommentBoxProps> = ({user,postId}) => {
                 {/*post comments - should only show 10 at a time*/}
                 <h1>Comments</h1>
                 <div>
-                {comments.map((comment:any) => (
+                {comments.map((comment:Comment) => (
                 <div key={comment.Comment_id} className="comment">
                     <Comments_Template commentObject={comment} user={user}/>
                 </div>

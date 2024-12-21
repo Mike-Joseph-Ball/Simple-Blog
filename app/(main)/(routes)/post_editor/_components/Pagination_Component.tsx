@@ -3,7 +3,6 @@ import { usePagination } from "./PaginationContext";
 import {
     Pagination,
     PaginationContent,
-    PaginationEllipsis,
     PaginationItem,
     PaginationLink,
     PaginationNext,
@@ -36,9 +35,6 @@ const Pagination_Component: React.FC<PaginationProps> = ({numComments}) => {
         if (searchParams && numComments) {
           console.log('searchParams:',searchParams)
           const params = new URLSearchParams(searchParams);
-      
-          // Determine if the current page is the last one
-          const isLastPage = currentPage >= Math.ceil(numComments / 10);
       
           // Add or update the `commentPage` parameter
             params.set('commentPage', newCurrentPage.toString());

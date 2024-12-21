@@ -19,6 +19,7 @@ const Fetch_Comments_Associated_With_Post = async(req:NextApiRequest,res:NextApi
         const sql = 'SELECT * FROM Comments WHERE Post_id=(?) LIMIT ? OFFSET ?'
         const [response] = await db.query(sql, [postId,commentsPerPage,offset])
         return res.status(200).json({success:true,res:response})
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch(error:any) {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
         return res.status(400).json({success:false, message:errorMessage,errno:error.errno})

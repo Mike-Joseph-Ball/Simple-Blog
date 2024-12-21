@@ -19,7 +19,7 @@ const Toggle_Post_Visibility = async (req: NextApiRequest, res : NextApiResponse
     }
     const sqlRetrieve = 'SELECT Is_post_public FROM Posts WHERE Post_id = (?)'
     const [rows] = await db.query<PostRow[]>(sqlRetrieve,[Post_id])
-    let isPostPublicBuffer = rows[0].Is_post_public;
+    const isPostPublicBuffer = rows[0].Is_post_public;
     console.log("Is Post Public:", isPostPublicBuffer);
     
     const isPostPublicBoolean = isPostPublicBuffer === 1;
@@ -32,6 +32,7 @@ const Toggle_Post_Visibility = async (req: NextApiRequest, res : NextApiResponse
     const [Update_visibility] = await db.query(sqlUpdate,[!isPostPublicBoolean,Post_id])
     res.status(200).json({success:true,res:Update_visibility})
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error:any) {
         res.status(500).json({success:false,error:error,errno:error.errno})
     } finally {

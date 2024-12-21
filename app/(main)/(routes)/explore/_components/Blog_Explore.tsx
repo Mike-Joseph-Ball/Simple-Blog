@@ -3,11 +3,8 @@ import {useExploreContext} from './ExploreContext'
 import { Button } from "@/components/ui/button";
 import React, { useEffect,useState } from 'react'
 import { User } from "firebase/auth";
-import { Post } from "./item_cards/Post_Card";
 import Fetch_Explore_Items_Offset_Middleware from "@/lib/mySQL/client_side/GET/Fetch_Explore_Items_Offset_Middleware"
-import Post_Card from "./item_cards/Post_Card";
 import Blog_Card from "./item_cards/Blog_Card";
-import Fetch_Count_Explore_Items_Middleware from "@/lib/mySQL/client_side/GET/Fetch_Count_Explore_Items_Middleware";
 
 interface Blog {
     Blog_id: number;
@@ -29,7 +26,7 @@ const Blog_Explore: React.FC<Blog_Explore_Prop> = ({user}) => {
     const [searchQuery,setSearchQuery] = useState('')
     const [searchResult,setSearchResult] = useState([])
     const { currentPage,setCurrentPage,setNumItems } = useExploreContext();
-    const [stateCurrentPage,setStateCurrentPage] = useState(currentPage)
+    //const [stateCurrentPage,setStateCurrentPage] = useState(currentPage)
     const [isFirstRender, setIsFirstRender] = useState(true);
 
 
@@ -44,7 +41,7 @@ const Blog_Explore: React.FC<Blog_Explore_Prop> = ({user}) => {
     // when searchResult changes so that the component actually refreshes
     useEffect(() => {
         console.log('setting blog state var:')
-        setStateCurrentPage(currentPage)
+        //setStateCurrentPage(currentPage)
     },[searchResult])
 
       const handleSearchClick = async() => {
@@ -66,7 +63,7 @@ const Blog_Explore: React.FC<Blog_Explore_Prop> = ({user}) => {
         handleSearchClick();
     }, [currentPage]);
 
-      const handleInputChange = (event:any) => {
+      const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setSearchQuery(event.target.value)
       }
 

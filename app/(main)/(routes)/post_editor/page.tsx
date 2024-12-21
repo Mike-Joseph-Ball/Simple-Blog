@@ -11,20 +11,11 @@ import BackToDashboardButton from '@/app/(main)/(routes)/post_editor/_components
 import Comment_Section from './_components/Comment_Section';
 import { SimpleBlogAlert } from './_components/alerts'; 
 import Does_User_Own_Blog_Middleware from '@/lib/mySQL/client_side/GET/Does_User_Own_Blog_Middleware';
+import { Suspense } from 'react';
 //import { ZodNullable } from 'zod';
 // Import dynamically with `ssr: false`
 const Rich_Text_Editor = dynamic(() => import('@/app/(main)/(routes)/post_editor/_components/Rich_Text_Editor'), { ssr: false });
 
-interface post {
-    Post_id: number;
-    Post_title: string;
-    Is_post_public: number;
-    Comment_settings: number;
-    Post_content: string;
-    User_email: string;
-    Blog_id: number;
-    Created_at: number;
-}
 const Post_Editor = () => {
 
     const [loadedProperly,setLoadedProperly] = useState<null|boolean>(null)
@@ -154,5 +145,12 @@ const Post_Editor = () => {
     }
 
 }
- 
-export default Post_Editor;
+
+
+export default function PostEditorWrapper() {
+    return (
+      <Suspense fallback={<div>Loading...</div>}>
+        <Post_Editor />
+      </Suspense>
+    );
+  }

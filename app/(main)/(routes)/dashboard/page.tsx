@@ -13,6 +13,8 @@ import Query_Blog_Given_Id_Middlware from '@/lib/mySQL/client_side/GET/Query_Blo
 import BlogTitleAndDescription from './_components/blog_details'
 import Does_User_Own_Blog_Middleware from '@/lib/mySQL/client_side/GET/Does_User_Own_Blog_Middleware'
 import { useRouter } from 'next/navigation';
+import { Post } from '../explore/_components/item_cards/Post_Card'
+import { Suspense } from 'react'
 
 export interface MySQLError extends Error {
     code?: string, // MySQL error code (e.g., 'ER_NO_SUCH_TABLE')
@@ -42,7 +44,7 @@ const Dashboard = () => {
     const [defaultBlog,setDefaultBlog] = useState<BlogDetails | null>(null)
     const[usersBlogs,setUsersBlogs] = useState([])
     const [blogLoaded,setBlogLoaded] = useState<boolean|null>(null)
-    const [associatedPosts, setAssociatedPosts] = useState<any[]>([]);
+    const [associatedPosts, setAssociatedPosts] = useState<Post[]>([]);
     const [errorArray,setError] = useState<(MySQLError|string|Error)[]>([]) 
     //const [user, setUser] = useState<User | null>(null); // Type user state with Firebase User
     const [user,isPending] = useLocalUserAuth();
@@ -161,6 +163,7 @@ const Dashboard = () => {
                     }
                     /* END GETTING MOST USED BLOG AND POST COUNT */
 
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             } catch(error:any) {
                 console.log("unknown error occured adding retrieving blog details:",error)
                 setError((prevError) => [...prevError, error]);
@@ -231,6 +234,7 @@ const Dashboard = () => {
                 //INCLUDES DIRECT BLOG DETAILS, AND POSTS ON BLOG
                 /* END GETTING BLOG DETAILS */
 
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             } catch(error:any) {
                 console.log('could not retrieve posts associated with user:',error)
                 setError((prevError) => [...prevError, error]);
@@ -266,7 +270,6 @@ const Dashboard = () => {
 
         }
         DoesUserOwnBlogId()
-
     },[defaultBlog])
 
     
@@ -282,8 +285,8 @@ const Dashboard = () => {
         return(
             <div>
                 <h1>Error occured when trying to retrieve dashboard details:</h1>
-                {errorArray.map((error:any,index:number) => (
-                    error.errno === -111 ? <p className="text-red-700" >Connection to database was unsuccessful</p> : <p className="text-red-700" key={index}>{error.toString()}</p>
+                {errorArray.map((error:MySQLError|string|Error,index:number) => (
+                    typeof error === 'object' && 'errno' in error && error.errno === -111 ? <p className="text-red-700" key={`db-error-${index}`} >Connection to database was unsuccessful</p> : <p className="text-red-700" key={index}>{error.toString()}</p>
                 ))}
             </div>
         )
@@ -307,4 +310,12 @@ const Dashboard = () => {
 
 }
  
-export default Dashboard;
+
+
+export default function DashboardWrapper() {
+    return (
+      <Suspense fallback={<div>Loading...</div>}>
+        <Dashboard />
+      </Suspense>
+    );
+  }

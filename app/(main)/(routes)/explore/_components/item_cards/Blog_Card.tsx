@@ -1,4 +1,3 @@
-import { convertEditorjsDataToHumanReadable } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 import React from 'react';
 import { User } from 'firebase/auth';
@@ -20,7 +19,6 @@ interface BlogDetailsProp {
 const Blog_Card: React.FC<BlogDetailsProp> = ({ blogDetails,user }) => {
 
   const router = useRouter();
-  let displayName
 
   const handleClick = (blogId: number) => {
     router.push(`/dashboard?blogId=${blogId}`);

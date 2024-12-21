@@ -3,14 +3,12 @@ import { useExploreContext } from "./ExploreContext";
 import {
     Pagination,
     PaginationContent,
-    PaginationEllipsis,
     PaginationItem,
     PaginationLink,
     PaginationNext,
     PaginationPrevious,
   } from "@/components/ui/pagination"
 import { useSearchParams } from 'next/navigation';
-import Link from 'next/link'
 import { useEffect,useState } from "react";
 
 /*
@@ -22,8 +20,10 @@ interface PaginationProps {
 const Pagination_Component = () => {
 
 
-    const { currentPage, setCurrentPage, numItems, setNumItems} = useExploreContext(); // Access the shared state and setter
+    const { currentPage, setCurrentPage, numItems} = useExploreContext(); // Access the shared state and setter
     const searchParams = useSearchParams()
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [stateCurrentPage,setStateCurrentPage] = useState(1)
 
     //when the global variable currentPage is changed, we need to change the state variable to cause a reload

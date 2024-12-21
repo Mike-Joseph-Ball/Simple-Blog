@@ -1,12 +1,11 @@
-import { createInterface } from "node:readline/promises";
 
 import {
   S3Client,
-  PutObjectCommand,
+  /*PutObjectCommand,
   CreateBucketCommand,
   DeleteObjectCommand,
   DeleteBucketCommand,
-  paginateListObjectsV2,
+  paginateListObjectsV2,*/
   GetObjectCommand,
 } from "@aws-sdk/client-s3";
 

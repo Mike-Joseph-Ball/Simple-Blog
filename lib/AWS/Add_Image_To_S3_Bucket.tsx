@@ -24,7 +24,7 @@ async function Add_Image_To_S3_Bucket(file:Buffer,key:string){
       });
 
     // Put an object into an Amazon S3 bucket.
-    const result = await s3Client.send(
+    await s3Client.send(
         new PutObjectCommand({
             Bucket: 'simplebloglivebucket',
             Key: key,

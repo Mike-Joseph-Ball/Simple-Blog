@@ -19,7 +19,7 @@ const PostContent: React.FC<ChildComponentProps> = ({postData = [],blogId=null,d
     const [user] = useLocalUserAuth()
     const [statePostData,setStatePostData] = useState(postData)
 
-    const handleClick = (postId:Number) => {
+    const handleClick = (postId:number) => {
         router.push(`/post_editor?postId=${postId}&blogId=${blogId}`)
     }
 
@@ -66,7 +66,7 @@ const PostContent: React.FC<ChildComponentProps> = ({postData = [],blogId=null,d
                         <div className="ml-4">
                           {/* Placeholder for trash icon */}
                           <div className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center text-white">
-                          <Button variant='ghost' onClick={(e) => { e.stopPropagation(); handlePostDelete(post.Post_id);}}>
+                          <Button variant='ghost' onClick={(e) => { e.stopPropagation(); handlePostDelete(post.Post_id.toString());}}>
                               🗑️
                             </Button>
                           </div>

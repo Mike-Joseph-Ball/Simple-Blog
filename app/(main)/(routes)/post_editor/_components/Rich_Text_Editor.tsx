@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useRef, useState} from 'react';
-import EditorJS from '@editorjs/editorjs';
+import EditorJS, { ToolConstructable } from '@editorjs/editorjs';
 import Header from '@editorjs/header';
 import List from '@editorjs/list'; 
 import ImageTool from '@editorjs/image';
@@ -24,18 +24,6 @@ interface OutputData {
 }
 */
 
-
-interface post {
-  Post_id: number;
-  Post_title: string;
-  Is_post_public: number;
-  Comment_settings: number;
-  Post_content: string;
-  User_email: string;
-  Blog_id: number;
-  Created_at: number;
-}
-
 type RichTextEditorProps = {
   postTitle: string;
   postContents: string;
@@ -57,7 +45,7 @@ const Rich_Text_Editor: React.FC<RichTextEditorProps> = ({postContents,postId,po
   
   // Initialize EditorJS
   //userToken is needed for uploading images. 
-  const initEditor = (userToken:string) => {
+  const initEditor = () => {
     if(initEditorCalled.current){
       console.log("initEditor was attempted to be called but it was already initialized")
       return
@@ -73,7 +61,7 @@ const Rich_Text_Editor: React.FC<RichTextEditorProps> = ({postContents,postId,po
       holder: 'editorjs',
       tools: { 
         header: {
-          class: Header as any,
+          class: Header as unknown as ToolConstructable,
           config: {
             levels: [2, 3, 4],
             defaultLevel: 2
@@ -94,6 +82,7 @@ const Rich_Text_Editor: React.FC<RichTextEditorProps> = ({postContents,postId,po
                 },
                 uploader: {
                     //Editorjs internally calls uploadByFile
+                    //eslint-disable-next-line @typescript-eslint/no-explicit-any
                     async uploadByFile(file:any) {
                       console.log("entered uploadByFile function")
                         //FormData is a native JS class that provides a way to construct key:value pairs
@@ -147,7 +136,7 @@ const Rich_Text_Editor: React.FC<RichTextEditorProps> = ({postContents,postId,po
                             });
 
                     },
-                    uploadByUrl(Url:string) {
+                    uploadByUrl(/*Url:string*/) {
                         console.log('hi')
                     }
                 },
@@ -176,7 +165,7 @@ const Rich_Text_Editor: React.FC<RichTextEditorProps> = ({postContents,postId,po
           console.log('initializing editor...')
           const idToken = await user.getIdToken();
           setUserToken(idToken)
-          initEditor(idToken);
+          initEditor();
           initEditorCalled.current = true;
           setPageLoaded(true)
         };

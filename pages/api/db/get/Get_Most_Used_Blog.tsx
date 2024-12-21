@@ -1,4 +1,3 @@
-import { createConnection } from '@/lib/db'
 import { NextApiRequest, NextApiResponse } from "next";
 //This allowed us to get the proper data type exported from mysql
 import { RowDataPacket } from 'mysql2';
@@ -20,7 +19,7 @@ const Get_Most_Used_Blog = async (req:NextApiRequest,res:NextApiResponse) => {
     try {
         
         const sqlBlogIds = 'SELECT Blog_id FROM Blogs WHERE user_email = (?)'
-        let [blogResponse] = await db.query<RowDataPacket[]>(sqlBlogIds, [user_email])
+        const [blogResponse] = await db.query<RowDataPacket[]>(sqlBlogIds, [user_email])
         const blogIds = blogResponse.map(row => row.Blog_id);
         console.log("1st SQL query succeeded")
         
@@ -38,7 +37,7 @@ const Get_Most_Used_Blog = async (req:NextApiRequest,res:NextApiResponse) => {
             ORDER BY post_count DESC
             LIMIT 1;
         `
-        let [postResponse] = await db.query<RowDataPacket[]>(sqlBlogWithMostPosts, [blogIds])
+        const [postResponse] = await db.query<RowDataPacket[]>(sqlBlogWithMostPosts, [blogIds])
         console.log("2nd SQL query succeeded")
         console.log('post response:',postResponse)
 
@@ -65,7 +64,7 @@ const Get_Most_Used_Blog = async (req:NextApiRequest,res:NextApiResponse) => {
         }
 
         const mostUsedBlogDetailsSql = 'SELECT * FROM Blogs WHERE blog_id = (?)'
-        let [mostUsedBlog] = await db.query(mostUsedBlogDetailsSql,postResponse[0].Blog_id)
+        const [mostUsedBlog] = await db.query(mostUsedBlogDetailsSql,postResponse[0].Blog_id)
 
 
         console.log('3rd SQL query succeeded')
@@ -73,7 +72,7 @@ const Get_Most_Used_Blog = async (req:NextApiRequest,res:NextApiResponse) => {
         
         return res.status(200).json({success:true,most_used_blog:mostUsedBlog,post_count:postResponse[0].post_count})
 
-        
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch(error:any) {
         console.log('Get_Most_Used_Blog SQL request failed: ',error)
         const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';

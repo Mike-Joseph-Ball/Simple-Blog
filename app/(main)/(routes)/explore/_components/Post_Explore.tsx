@@ -14,7 +14,7 @@ const Post_Explore: React.FC<Post_Explore_Prop> = ({user}) => {
 
     const [searchQuery,setSearchQuery] = useState('')
     const [searchResult,setSearchResult] = useState([])
-    const { currentPage,setCurrentPage,numItems,setNumItems } = useExploreContext();
+    const { currentPage,setCurrentPage,setNumItems } = useExploreContext();
     const [isFirstRender, setIsFirstRender] = useState(true);
     
 
@@ -43,7 +43,7 @@ const Post_Explore: React.FC<Post_Explore_Prop> = ({user}) => {
       handleSearchClick();
     }, [currentPage]);
 
-      const handleInputChange = (event:any) => {
+      const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setSearchQuery(event.target.value); // Update state with input value
       };
 

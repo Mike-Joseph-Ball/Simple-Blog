@@ -1,14 +1,10 @@
 'use client'
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { useState } from 'react'
-import Blog_Explore from "./Blog_Explore"
-import Post_Explore from "./Post_Explore"
-import User_Explore from "./User_Explore"
 import { useExploreContext } from "./ExploreContext"
 
 const Navbar = () => {
 
-    const { activeTab, setActiveTab } = useExploreContext();
+    const { setActiveTab } = useExploreContext();
     
     return (  
         <div>

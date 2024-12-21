@@ -1,4 +1,3 @@
-import { createConnection } from '@/lib/db'
 import { NextApiRequest, NextApiResponse } from "next";
 import verify_id_token_helper from '@/lib/_firebase/server/Verify_Firebase_Auth_Helper'
 import { RowDataPacket } from 'mysql2';

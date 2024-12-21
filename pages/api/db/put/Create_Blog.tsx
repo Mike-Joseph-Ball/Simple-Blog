@@ -1,4 +1,3 @@
-import { createConnection } from '@/lib/db'
 import { NextApiRequest, NextApiResponse } from "next";
 import { createPool } from '@/lib/db'
 import verify_id_token_helper from '@/lib/_firebase/server/Verify_Firebase_Auth_Helper'
@@ -15,6 +14,7 @@ const Create_Blog = async (req: NextApiRequest, res : NextApiResponse) => {
             const sql = 'INSERT INTO Blogs (user_email,blog_title,comment_settings_default,blog_template_style,blog_description) VALUES (?, ?, ?, ?, ?)'
             const [response] = await db.query(sql, [user_email,blog_title,comment_settings_default,blog_template_style,blog_description])
             return(res.status(200).json({success:true, res:response}))
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch(error:any) {
             const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
             console.log("SQL Error:",error)

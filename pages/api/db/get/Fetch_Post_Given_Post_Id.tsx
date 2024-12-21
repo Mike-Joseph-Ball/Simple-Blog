@@ -1,6 +1,5 @@
 //This module first checks if the user's JWT Token is valid, and then it adds the user to the mySQL DB.
 //This was written so that user's who signed up and were added to firebase were also added to the mySQL DB at the same time
-import { createConnection } from '@/lib/db'
 import { createPool } from '@/lib/db'
 import { NextApiRequest, NextApiResponse } from "next";
 import verify_id_token_helper from '@/lib/_firebase/server/Verify_Firebase_Auth_Helper'
@@ -26,6 +25,7 @@ const Fetch_Post_Given_Post_Id = async (req : NextApiRequest, res : NextApiRespo
             const [response] = await db.query(sql, [postId])
             
             return (res.status(200).json({success:true, res:response}));
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch(error: any) {
             console.error("SQL Error:", error);
         
